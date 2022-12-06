@@ -7,7 +7,7 @@ import 'package:eventx/models/theme/theme_model.dart';
 import 'package:eventx/models/venue/filtered_venue_model.dart';
 
 class EventRepository {
-  Future<List<EventModel?>> loadHealthCategory() {
+  Future<List<EventModel?>> loadEventType() {
     return EventAPI().loadEventType();
   }
 

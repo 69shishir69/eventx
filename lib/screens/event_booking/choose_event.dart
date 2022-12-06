@@ -152,7 +152,7 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
                   height: 20,
                 ),
                 FutureBuilder<List<EventModel?>>(
-                  future: EventRepository().loadHealthCategory(),
+                  future: EventRepository().loadEventType(),
                   builder: (context, snapshot) {
                     // debugPrint("Data:::::${snapshot.data!.length}");
                     // debugPrint("Data:::::${snapshot.data![0]!.name}");
