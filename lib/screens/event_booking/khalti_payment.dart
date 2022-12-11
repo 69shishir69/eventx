@@ -109,12 +109,15 @@ class _KhaltiPaymentScreenState extends State<KhaltiPaymentScreen> {
                         PaymentPreference.khalti,
                       ],
                       onSuccess: (su) {
-                        debugPrint("Success Pay: ${su.productName}");
-                        const successsnackBar = SnackBar(
-                          content: Text('Payment Successful'),
+                        debugPrint("Success Payssssssssssssssssssssss: ");
+                        // print("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+                        var successsnackBar = SnackBar(
+                          content: Text('Payment Successful${su.token}, ${su.additionalData},${su.idx}'),
+                          duration: const Duration(seconds: 15),
                         );
                         ScaffoldMessenger.of(context)
                             .showSnackBar(successsnackBar);
+                            Navigator.pushNamed(context, "/chooseEvent");
                       },
                       onFailure: (fa) {
                         const failedsnackBar = SnackBar(

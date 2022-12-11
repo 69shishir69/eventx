@@ -12,7 +12,9 @@ import 'package:eventx/screens/event_booking/choose_event.dart';
 import 'package:eventx/screens/event_booking/choose_theme.dart';
 import 'package:eventx/screens/event_booking/choose_venue.dart';
 import 'package:eventx/screens/event_booking/details_screen.dart';
+import 'package:eventx/screens/event_booking/eventx_chatpage.dart';
 import 'package:eventx/screens/event_booking/khalti_payment.dart';
+import 'package:eventx/screens/widgets/events_card.dart';
 import 'package:flutter/material.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
 
@@ -35,7 +37,7 @@ void main() {
         routes: {
           '/bottomNavBar': (context) => const BottomNavScreen(),
 
-          // Event Booking
+          // Event Bookingdis
           '/chooseVenue': (context) => const ChooseVenueScreen(),
           '/chooseEvent': (context) => const ChooseEventScreen(),
           '/chooseTheme':(context) => const ChooseThemeScreen(),
@@ -51,6 +53,13 @@ void main() {
           '/login':(context) => const LoginScreen(),
           '/register':(context) => const RegisterScreen(),
           '/OTPVerification':(context) => const OTPVerification(),
+
+          // Chat with Staff
+          '/chat':(context) => const EventXChatPage(),
+
+
+          // for trying
+          '/pastEventsCard':(context) => const PastEventsCard(),
         },
       );}
     ),
