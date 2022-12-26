@@ -1,19 +1,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'items_details.dart';
+part of 'cake_details.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Items _$ItemsFromJson(Map<String, dynamic> json) {
-  return Items(
+Cakes _$CakesFromJson(Map<String, dynamic> json) {
+  return Cakes(
     id: json['id'] as String?,
-    quantity: json['quantity'] as int?,
+    pound: json['pound'] as int?,
   );
 }
 
-Map<String, dynamic> _$ItemsToJson(Items instance) => <String, dynamic>{
+Map<String, dynamic> _$CakesToJson(Cakes instance) => <String, dynamic>{
       'id': instance.id,
-      'quantity': instance.quantity,
+      'pound': instance.pound,
     };

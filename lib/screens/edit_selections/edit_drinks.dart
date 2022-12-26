@@ -3,14 +3,14 @@ import 'package:eventx/repository/event_booking.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ChooseDrinksScreen extends StatefulWidget {
-  const ChooseDrinksScreen({Key? key}) : super(key: key);
+class EditDrinksScreen extends StatefulWidget {
+  const EditDrinksScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChooseDrinksScreen> createState() => _ChooseDrinksScreenState();
+  State<EditDrinksScreen> createState() => _EditDrinksScreenState();
 }
 
-class _ChooseDrinksScreenState extends State<ChooseDrinksScreen> {
+class _EditDrinksScreenState extends State<EditDrinksScreen> {
   final _eventEditingController = TextEditingController();
   final _drinksController = TextEditingController();
   Map<int, dynamic> whiskeyQty = {};
@@ -206,7 +206,7 @@ class _ChooseDrinksScreenState extends State<ChooseDrinksScreen> {
                         debugPrint("ChooseDrinks: $allDrinks");
                         Navigator.pushNamed(
                           context,
-                          '/chooseDrinksCategory',
+                          '/editDrinksCategory',
                           arguments: allDrinks,
                         );
                       },
@@ -234,57 +234,6 @@ class _ChooseDrinksScreenState extends State<ChooseDrinksScreen> {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget doctorContainer(DrinksModel drinks, int index) {
-    // debugPrint("data===${event[0]}");
-    // debugPrint("value===${event[1]}");
-    // debugPrint("List===${listEvent[2]}");
-    debugPrint(index.toString());
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/chooseCakes',
-          arguments: allDrinks,
-        );
-        // debugPrint(doctorModel!.id! + department);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          // height: height * 0.13,
-          decoration: BoxDecoration(
-            // boxShadow: [
-            //   BoxShadow(
-            //     color:
-            //         const Color.fromARGB(255, 233, 233, 233).withOpacity(0.5),
-            //     spreadRadius: 5,
-            //     blurRadius: 7,
-            //     offset: const Offset(0, 3), // changes position of shadow
-            //   ),
-            // ],
-            borderRadius: BorderRadius.circular(20),
-            // color: const Color.fromRGBO(11, 86, 222, 5),
-            color: Colors.white,
-          ),
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage(listEvent[index][0]),
-              ),
-              // SizedBox(
-              //   width: 0.0468 * width,
-              // ),
-              Text(drinks.price.toString()),
-              Text(drinks.name!),
-            ],
           ),
         ),
       ),

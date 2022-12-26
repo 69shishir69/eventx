@@ -2,14 +2,14 @@ import 'package:eventx/models/event/event_model.dart';
 import 'package:eventx/repository/event_booking.dart';
 import 'package:flutter/material.dart';
 
-class ChooseEventScreen extends StatefulWidget {
-  const ChooseEventScreen({Key? key}) : super(key: key);
+class EditEventScreen extends StatefulWidget {
+  const EditEventScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChooseEventScreen> createState() => _ChooseEventScreenState();
+  State<EditEventScreen> createState() => _EditEventScreenState();
 }
 
-class _ChooseEventScreenState extends State<ChooseEventScreen> {
+class _EditEventScreenState extends State<EditEventScreen> {
   final _eventEditingController = TextEditingController();
 
   String searchQuery = "";
@@ -33,26 +33,13 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
     ],
   ];
 
-  Map<String, dynamic> eventBooking = {
-    "EVENT": {},
-    "VENUE": {},
-    "THEME": {},
-    "FOODS": {},
-    "DRINKS": {
-      "WHISKEY": {},
-      "VODKA": {},
-      "SOFT": {},
-      "GIN": {},
-      "WINE": {},
-      "BRANDY": {}
-    },
-    "CAKES": {},
-    "DECORATIONS": {},
-    "TOTAL":{}
-  };
+  List<dynamic>? draftList = [];
+  var eventBooking;
+
 
   @override
   Widget build(BuildContext context) {
+    eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
     debugPrint(eventBooking.toString());
     return Scaffold(
       body: SafeArea(
@@ -208,7 +195,7 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
         debugPrint("Total EVent : $eventBooking");
         Navigator.pushNamed(
           context,
-          '/chooseVenue',
+          '/editDetailsScreen',
           arguments: eventBooking,
         );
         // debugPrint(doctorModel!.id! + department);

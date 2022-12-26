@@ -9,13 +9,17 @@ class PastEvents {
   String? token;
   String? idx;
   String? amount;
-  String? event;
+  String? eventType;
+  DateTime? date;
+  int? numberOfPeople;
+  String? userId;
   String? venue;
   String? theme;
+  bool? active;
+  bool? completed;
   List<Items?>? drinks;
   List<Items?>? cakes;
   List<String>? decoration;
-  
 
   PastEvents({
     this.id,
@@ -25,9 +29,14 @@ class PastEvents {
     this.cakes,
     this.decoration,
     this.drinks,
-    this.event,
+    this.eventType,
     this.theme,
     this.venue,
+    this.active,
+    this.completed,
+    this.date,
+    this.numberOfPeople,
+    this.userId,
 
   });
 

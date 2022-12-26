@@ -1,37 +1,20 @@
-import 'package:eventx/screens/bottom_nav_bar.dart';
-import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
-class DetailsScreen extends StatefulWidget {
-  const DetailsScreen({super.key});
+class DetailsScreenDraft extends StatefulWidget {
+  const DetailsScreenDraft({super.key});
 
   @override
-  State<DetailsScreen> createState() => _DetailsScreenState();
+  State<DetailsScreenDraft> createState() => _DetailsScreenDraftState();
 }
 
-class _DetailsScreenState extends State<DetailsScreen> {
-  @override
-  void initState() {
-    loadGetStorage();
-    super.initState();
-  }
+class _DetailsScreenDraftState extends State<DetailsScreenDraft> {
 
-  void loadGetStorage() async {
-    await GetStorage.init();
-  }
-
-  List<dynamic> draftList = [];
   var eventBooking;
   final storage = GetStorage();
 
   @override
   Widget build(BuildContext context) {
-    if (storage.read(id!) == null) {
-      draftList = [];
-    } else {
-      draftList = storage.read(id!);
-    }
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
     debugPrint("Details Screen: $eventBooking");
     return Scaffold(
@@ -71,7 +54,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         width: 80,
                       ),
                       const Text(
-                        "Booking Details",
+                        "Details",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -294,76 +277,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(23, 0, 113, 1)),
-                            elevation: MaterialStateProperty.all(0),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pushNamed(
-                            context,
-                            '/editDetailsScreen',
-                            arguments: eventBooking,
-                          );
-                          },
-                          child: const Text("Edit Selections"),
-                        ),
-                      ),
-                      // _______________________________________________Save a draft
-                      SizedBox(
-                        width: 150,
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromRGBO(38, 0, 185, 1)),
-                            elevation: MaterialStateProperty.all(0),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.0),
-                              ),
-                            ),
-                          ),
-                          onPressed: () async {
-                            //  final SharedPreferences prefs = await SharedPreferences.getInstance();
-                            //  final String encodedData = json.encode(eventBooking);
-                            draftList.add(eventBooking);
-                            storage.write(id!, draftList);
-                            // var newFile = storage.read("sss");
-                            // debugPrint("New File: $newFile");
-                            debugPrint(storage.read(id!).toString());
-
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const BottomNavBar(index: 0),
-                              ),
-                            );
-                            //  final String encodedList = draftList.toString();
-
-                            //  await prefs.setString('draft_data', encodedList);
-
-                            //  debugPrint("EncodedList: $encodedList");
-                            //  debugPrint("EncodedList: $encodedList");
-                            //  final List<dynamic> decodedList = jsonDecode(encodedList);
-                          },
-                          child: const Text("Save Draft"),
-                        ),
-                      ),
-                    ],
-                  ),
+                  
                   Center(
                     child: SizedBox(
                       height: 50,
@@ -371,11 +285,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                       child: ElevatedButton(
                         key: const ValueKey('btnLogin'),
                         onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/khaltiPaymentScreen',
-                            arguments: eventBooking,
-                          );
+                          Navigator.pop(context);
                         },
                         style: ButtonStyle(
                           shape:
@@ -389,7 +299,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               const Color.fromRGBO(0, 131, 29, 1)),
                         ),
                         child: const Text(
-                          "Proceed to payment",
+                          "Continue",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 20,

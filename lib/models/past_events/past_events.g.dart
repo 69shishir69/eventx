@@ -23,9 +23,14 @@ PastEvents _$PastEventsFromJson(Map<String, dynamic> json) {
         ?.map(
             (e) => e == null ? null : Items.fromJson(e as Map<String, dynamic>))
         .toList(),
-    event: json['event'] as String?,
+    eventType: json['eventType'] as String?,
     theme: json['theme'] as String?,
     venue: json['venue'] as String?,
+    active: json['active'] as bool?,
+    completed: json['completed'] as bool?,
+    date: json['date'] == null ? null : DateTime.parse(json['date'] as String),
+    numberOfPeople: json['numberOfPeople'] as int?,
+    userId: json['userId'] as String?,
   );
 }
 
@@ -35,9 +40,14 @@ Map<String, dynamic> _$PastEventsToJson(PastEvents instance) =>
       'token': instance.token,
       'idx': instance.idx,
       'amount': instance.amount,
-      'event': instance.event,
+      'eventType': instance.eventType,
+      'date': instance.date?.toIso8601String(),
+      'numberOfPeople': instance.numberOfPeople,
+      'userId': instance.userId,
       'venue': instance.venue,
       'theme': instance.theme,
+      'active': instance.active,
+      'completed': instance.completed,
       'drinks': instance.drinks,
       'cakes': instance.cakes,
       'decoration': instance.decoration,

@@ -20,44 +20,7 @@ class _ChooseCreateEventScreenState extends State<ChooseCreateEventScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: 50,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color.fromRGBO(97, 62, 234, 1),
-
-                            // border:
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            "Back",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 100,
-                    ),
-                    const Text(
-                      "Events",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color.fromRGBO(118, 125, 152, 1),
-                      ),
-                    )
-                  ],
-                ),
+                
                 const SizedBox(
                   height: 20,
                 ),

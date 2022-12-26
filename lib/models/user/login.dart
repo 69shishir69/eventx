@@ -1,14 +1,14 @@
+import 'package:eventx/models/user/user.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'login.g.dart';
 
 @JsonSerializable()
 class Login {
-  @JsonKey(name: "_id")
-  String? id;
+  User? user;
   String? token;
 
   Login({
-    this.id,
+    this.user,
     this.token,
   });
 

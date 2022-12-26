@@ -12,10 +12,14 @@ const getAllCakes = "api/cake/available";
 
 const loginUrl = "api/user/login";
 const registerUrl = "api/user/register";
+const updateProfileUrl = "api/user/update";
 
 const verifyotp = "api/user/verify-otp";
 const resendotp = "api/user/resend-otp";
 const viewUserProfile = "api/user/profile";
 
+const postTransactionUrl = "api/event/";
+
 
 String? token;
+String? id;

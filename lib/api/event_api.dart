@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:eventx/api/http_services.dart';
 import 'package:eventx/models/cake/cake_model.dart';
@@ -22,7 +24,12 @@ class EventAPI {
     var dio = HttpServices().getDioInstance();
 
     try {
-      response = await dio.get(url);
+      response = await dio.get(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+      );
 
       if (response.statusCode == 200) {
         LoadEventModelResponse loadEventModelResponse =
@@ -45,28 +52,34 @@ class EventAPI {
     return eventModelList;
   }
 
-
-  Future<List<FilteredVenueModel?>> loadFilteredVenueType(int noOfPeople, String date, String? indoor, String? outdoor) async {
+  Future<List<FilteredVenueModel?>> loadFilteredVenueType(
+      int noOfPeople, String date, String? indoor, String? outdoor) async {
     List<FilteredVenueModel?> venueModelList = [];
     bool? INDOOR;
     bool? OUTDOOR;
-    if(indoor == "INDOOR"){
+    if (indoor == "INDOOR") {
       INDOOR = true;
-    } else{
+    } else {
       INDOOR = false;
-    } 
-    if(outdoor == "OUTDOOR"){
-     OUTDOOR = true;
-    } else{
+    }
+    if (outdoor == "OUTDOOR") {
+      OUTDOOR = true;
+    } else {
       OUTDOOR = false;
     }
     Response response;
-    var url = "$baseUrl${getFilteredVenue}expectedPeople=$noOfPeople&&eventDate=$date";
+    var url =
+        "$baseUrl${getFilteredVenue}expectedPeople=$noOfPeople&&eventDate=$date";
     debugPrint("URL$url");
     var dio = HttpServices().getDioInstance();
 
     try {
-      response = await dio.get(url);
+      response = await dio.get(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+      );
       debugPrint(response.data.toString());
 
       if (response.statusCode == 200) {
@@ -111,7 +124,12 @@ class EventAPI {
     var dio = HttpServices().getDioInstance();
 
     try {
-      response = await dio.get(url);
+      response = await dio.get(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+      );
 
       if (response.statusCode == 200) {
         LoadThemeModelResponse loadThemeModelResponse =
@@ -144,7 +162,12 @@ class EventAPI {
     var dio = HttpServices().getDioInstance();
 
     try {
-      response = await dio.get(url);
+      response = await dio.get(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+      );
 
       if (response.statusCode == 200) {
         LoadDrinksModelResponse loadDrinksModelResponse =
@@ -172,7 +195,6 @@ class EventAPI {
     return drinksModelList;
   }
 
-
   Future<List<CakeModel?>> loadCakeType() async {
     List<CakeModel?> cakeModelList = [];
     Response response;
@@ -181,7 +203,12 @@ class EventAPI {
     var dio = HttpServices().getDioInstance();
 
     try {
-      response = await dio.get(url);
+      response = await dio.get(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+      );
 
       if (response.statusCode == 200) {
         LoadCakeModelResponse loadCakeModelResponse =
@@ -206,5 +233,4 @@ class EventAPI {
 
     return cakeModelList;
   }
-
 }

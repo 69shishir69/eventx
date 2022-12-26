@@ -1,21 +1,20 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'login.dart';
+part of 'transaction_details.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Login _$LoginFromJson(Map<String, dynamic> json) {
-  return Login(
-    user: json['user'] == null
-        ? null
-        : User.fromJson(json['user'] as Map<String, dynamic>),
+TransactionDetails _$TransactionDetailsFromJson(Map<String, dynamic> json) {
+  return TransactionDetails(
     token: json['token'] as String?,
+    idx: json['idx'] as String?,
   );
 }
 
-Map<String, dynamic> _$LoginToJson(Login instance) => <String, dynamic>{
-      'user': instance.user,
+Map<String, dynamic> _$TransactionDetailsToJson(TransactionDetails instance) =>
+    <String, dynamic>{
       'token': instance.token,
+      'idx': instance.idx,
     };

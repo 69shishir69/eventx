@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:eventx/api/http_services.dart';
+import 'package:eventx/models/user/profile.dart';
 import 'package:eventx/models/user/user.dart';
 import 'package:eventx/models/user/user_account.dart';
 import 'package:eventx/response/user/login_response.dart';
@@ -17,12 +18,13 @@ class UserAPI {
     Response response;
     var url = baseUrl + registerUrl;
     var dio = HttpServices().getDioInstance();
-
+    // debugPrint(user.toJson().toString());
     try {
       response = await dio.post(
         url,
         data: user.toJson(),
       );
+      debugPrint(response.data.toString());
       if (response.statusCode == 201) {
         return true;
       } else if (response.statusCode == 400) {
@@ -33,6 +35,33 @@ class UserAPI {
       return false;
     }
     return isSignup;
+  }
+
+  Future<bool> updateProfile(Profile profile) async {
+    // debugPrint(user.profile!.fullName);
+    bool isUpdated = false;
+    Response response;
+    var url = baseUrl + updateProfileUrl;
+    var dio = HttpServices().getDioInstance();
+    // debugPrint(user.toJson().toString());
+    try {
+      response = await dio.put(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+        data: profile.toJson(),
+      );
+      debugPrint(response.data.toString());
+      if (response.statusCode == 202) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
+    }
+    return isUpdated;
   }
 
   //Login API
@@ -46,14 +75,16 @@ class UserAPI {
         data: {
           "email": email,
           "password": password,
-          "category":"CUSTOMER",
         },
       );
-      // print("ygasjhgdjhgaskhdgkjsahdjsahjhdhkjasdkj");
-      debugPrint("lllll${response.data}");
+      debugPrint("ygasjhgdjhgaskhdgkjsahdjsahjhdhkjasdkj");
+      debugPrint(response.data.toString());
+      // debugPrint("lllll${response.data}");
       if (response.statusCode == 200) {
         LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+        debugPrint(loginResponse.data!.user.toString());
         token = loginResponse.data!.token;
+        id = loginResponse.data!.user!.id;
         debugPrint("Token: $token");
         if (token != null) {
           isLogin = true;

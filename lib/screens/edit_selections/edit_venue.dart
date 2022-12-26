@@ -5,14 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class ChooseVenueScreen extends StatefulWidget {
-  const ChooseVenueScreen({Key? key}) : super(key: key);
+class EditVenueScreen extends StatefulWidget {
+  const EditVenueScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChooseVenueScreen> createState() => _ChooseVenueScreenState();
+  State<EditVenueScreen> createState() => _EditVenueScreenState();
 }
 
-class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
+class _EditVenueScreenState extends State<EditVenueScreen> {
   List<dynamic>? draftList = [];
   final _noOfPeopleEditingController = TextEditingController();
   final _timeEditingController = TextEditingController();
@@ -494,11 +494,10 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
                     "No Of People": _noOfPeopleEditingController.text,
                     "Date": _timeEditingController.text,
                     "Name": venue.name!,
-                    "id": venue.id,
                   };
                   Navigator.pushNamed(
                     context,
-                    '/chooseTheme',
+                    '/editDetailsScreen',
                     arguments: eventBooking,
                   );
                 },

@@ -6,14 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ChooseCakesScreen extends StatefulWidget {
-  const ChooseCakesScreen({Key? key}) : super(key: key);
+class EditCakesScreen extends StatefulWidget {
+  const EditCakesScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChooseCakesScreen> createState() => _ChooseCakesScreenState();
+  State<EditCakesScreen> createState() => _EditCakesScreenState();
 }
 
-class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
+class _EditCakesScreenState extends State<EditCakesScreen> {
   final _eventEditingController = TextEditingController();
   final _customCakePoundController = TextEditingController();
 
@@ -265,7 +265,7 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
                         eventBooking["CAKES"] = selectedCakesPound;
                         Navigator.pushNamed(
                           context,
-                          '/chooseDecorationScreen',
+                          '/editDetailsScreen',
                           arguments: eventBooking,
                         );
                       },

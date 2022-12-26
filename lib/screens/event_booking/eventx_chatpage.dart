@@ -19,6 +19,7 @@ class EventXChatPage extends StatefulWidget {
 }
 
 class _EventXChatPageState extends State<EventXChatPage> {
+  List<String> chats = ["Hey, can i ask you that?"];
   bool show = false;
   FocusNode focusNode = FocusNode();
   bool sendButton = false;
@@ -96,6 +97,7 @@ class _EventXChatPageState extends State<EventXChatPage> {
             child: AppBar(
               leadingWidth: 70,
               titleSpacing: 0,
+              
               leading: InkWell(
                 onTap: () {
                   Navigator.pop(context);
@@ -109,7 +111,7 @@ class _EventXChatPageState extends State<EventXChatPage> {
                     ),
                     CircleAvatar(
                       radius: 20,
-                      backgroundImage: NetworkImage("https://ichef.bbci.co.uk/news/999/cpsprodpb/15951/production/_117310488_16.jpg"),
+                      backgroundImage: NetworkImage("https://manofmany.com/wp-content/uploads/2021/03/How-to-Look-Good-in-Photos-1200x900.jpeg"),
                       // child: Image.network(
                       //   // widget.chatModel.isGroup
                       //   //     ? "assets/groups.svg"
@@ -133,7 +135,7 @@ class _EventXChatPageState extends State<EventXChatPage> {
                     children: const [
                       Text(
                         // widget.chatModel.name,
-                        "eventX",
+                        "Shishir Kandel",
                         style: TextStyle(
                           fontSize: 18.5,
                           fontWeight: FontWeight.bold,
@@ -164,24 +166,25 @@ class _EventXChatPageState extends State<EventXChatPage> {
                       shrinkWrap: true,
                       controller: _scrollController,
                       // itemCount: messages.length + 1,
-                      itemCount: 9,
+                      itemCount: chats.length,
                       itemBuilder: (context, index) {
                         if (index == 9) {
                           return Container(
                             height: 70,
                           );
                         }
-                        if ("messages[index].type" == "source") {
-                          return const OwnMessageCard(
+                        // if ("messages[index].type" == "source") {
+                        if ("source" == "source") {
+                          return OwnMessageCard(
                             // message: "messages[index].message",
                             // time: "messages[index].time",
-                            message: "Hey how are you?",
+                            message: chats[index],
                             time: "68:68",
                           );
                         } else {
                           return const ReplyCard(
-                            message: "I'm Horny because of the time",
-                            time: "69:69",
+                            message: "OK, we can look into that.",
+                            time: "09:26",
                           );
                         }
                       },
@@ -254,6 +257,8 @@ class _EventXChatPageState extends State<EventXChatPage> {
                                     ),
                                     onPressed: () {
                                       if (sendButton) {
+                                        chats.add(_controller.text);
+                                        _controller.clear();
                                         // _scrollController.animateTo(
                                         //     _scrollController
                                         //         .position.maxScrollExtent,

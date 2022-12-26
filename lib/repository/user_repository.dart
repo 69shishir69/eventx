@@ -1,4 +1,5 @@
 import 'package:eventx/api/user_api.dart';
+import 'package:eventx/models/user/profile.dart';
 import 'package:eventx/models/user/user.dart';
 import 'package:eventx/models/user/user_account.dart';
 
@@ -21,5 +22,9 @@ class UserRepository {
 
   Future<UserAccount?> viewProfile() {
     return UserAPI().viewProfile();
+  }
+
+  Future<bool> updateProfile(Profile profile) {
+    return UserAPI().updateProfile(profile);
   }
 }
