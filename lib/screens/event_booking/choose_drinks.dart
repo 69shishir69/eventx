@@ -198,7 +198,6 @@ class _ChooseDrinksScreenState extends State<ChooseDrinksScreen> {
                     height: 50,
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: ElevatedButton(
-                      key: const ValueKey('btnLogin'),
                       onPressed: () {
                         // if(allDrinks){}
                         // allDrinks["DRINKS"][drinkCategory[0].toString()] =
@@ -240,56 +239,7 @@ class _ChooseDrinksScreenState extends State<ChooseDrinksScreen> {
     );
   }
 
-  Widget doctorContainer(DrinksModel drinks, int index) {
-    // debugPrint("data===${event[0]}");
-    // debugPrint("value===${event[1]}");
-    // debugPrint("List===${listEvent[2]}");
-    debugPrint(index.toString());
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/chooseCakes',
-          arguments: allDrinks,
-        );
-        // debugPrint(doctorModel!.id! + department);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          // height: height * 0.13,
-          decoration: BoxDecoration(
-            // boxShadow: [
-            //   BoxShadow(
-            //     color:
-            //         const Color.fromARGB(255, 233, 233, 233).withOpacity(0.5),
-            //     spreadRadius: 5,
-            //     blurRadius: 7,
-            //     offset: const Offset(0, 3), // changes position of shadow
-            //   ),
-            // ],
-            borderRadius: BorderRadius.circular(20),
-            // color: const Color.fromRGBO(11, 86, 222, 5),
-            color: Colors.white,
-          ),
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage(listEvent[index][0]),
-              ),
-              // SizedBox(
-              //   width: 0.0468 * width,
-              // ),
-              Text(drinks.price.toString()),
-              Text(drinks.name!),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  
 
   Widget drinks(DrinksModel drinks, int index) {
     return Padding(
@@ -353,30 +303,31 @@ class _ChooseDrinksScreenState extends State<ChooseDrinksScreen> {
               ),
             ),
             TextFormField(
-              initialValue: allDrinks["DRINKS"][drinkCategory[0]].containsKey(index)? allDrinks["DRINKS"][drinkCategory[0]][index][1]: "0",
+              initialValue: allDrinks["DRINKS"][drinkCategory[0]].containsKey(index.toString())? allDrinks["DRINKS"][drinkCategory[0]][index.toString()][1]: "0",
               // initialValue: "0",
               // controller: _drinksController,
               onChanged: (value) {
-                if (allDrinks["DRINKS"][drinkCategory[0]].containsKey(index) &&
-                    int.parse(allDrinks["DRINKS"][drinkCategory[0]][index][1]) > 0) {
+                if (allDrinks["DRINKS"][drinkCategory[0]].containsKey(index.toString()) &&
+                    int.parse(allDrinks["DRINKS"][drinkCategory[0]][index.toString()][1]) > 0) {
                   debugPrint("No. 1");
                   setState(() {
-                    allDrinks["DRINKS"][drinkCategory[0]][index] = [drinks.name!, value, drinks.id];
+                    allDrinks["DRINKS"][drinkCategory[0]][index.toString()] = [drinks.name!, value, drinks.id];
                     if (value.isEmpty || int.parse(value) == 0) {
-                      allDrinks["DRINKS"][drinkCategory[0]].remove(index);
+                      allDrinks["DRINKS"][drinkCategory[0]].remove(index.toString());
                     }
                   });
                 } else if (value.isEmpty || int.parse(value) == 0) {
                   debugPrint("No. 2");
 
-                  allDrinks["DRINKS"][drinkCategory[0]].remove(index);
+                  allDrinks["DRINKS"][drinkCategory[0]].remove(index.toString());
                 } else {
                   debugPrint("No. 3");
 
-                  final whiskey = <int, dynamic>{
-                    index: [drinks.name!, value, drinks.id]
+                  final whiskey = <String, dynamic>{
+                    index.toString(): [drinks.name!, value, drinks.id]
                   };
                   allDrinks["DRINKS"][drinkCategory[0]].addEntries(whiskey.entries);
+                  debugPrint("JDJDJDJDJ");
                 }
                 debugPrint("Whiskey QTY:   ${allDrinks["DRINKS"][drinkCategory[0]]}");
 

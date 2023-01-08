@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 class EditDetailsScreen extends StatefulWidget {
-  const EditDetailsScreen({super.key});
+  const EditDetailsScreen({Key? key}) : super(key: key);
+
 
   @override
   State<EditDetailsScreen> createState() => _EditDetailsScreenState();
@@ -23,6 +24,7 @@ class _EditDetailsScreenState extends State<EditDetailsScreen> {
   List<dynamic> draftList = [];
   var eventBooking;
   final storage = GetStorage();
+  String decorationsList = "";
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,9 @@ class _EditDetailsScreenState extends State<EditDetailsScreen> {
       draftList = storage.read(id!);
     }
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
+    eventBooking["DECORATIONS"].forEach((key, value){
+      decorationsList += "${value[0]}, ";
+    });
     debugPrint("Details Screen: $eventBooking");
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 250, 250, 255),
@@ -188,7 +193,7 @@ class _EditDetailsScreenState extends State<EditDetailsScreen> {
                             ),
                           ),
                           Text(
-                            eventBooking["THEME"],
+                            eventBooking["THEME"][0],
                             style: const TextStyle(
                               color: Color.fromRGBO(67, 67, 77, 0.9),
                               fontWeight: FontWeight.w600,
@@ -305,7 +310,7 @@ class _EditDetailsScreenState extends State<EditDetailsScreen> {
                             ),
                           ),
                           Text(
-                            eventBooking["DECORATIONS"],
+                            decorationsList,
                             style: const TextStyle(
                               color: Color.fromRGBO(67, 67, 77, 0.9),
                               fontWeight: FontWeight.w600,

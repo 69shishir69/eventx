@@ -1,6 +1,8 @@
 import 'package:eventx/models/theme/theme_model.dart';
 import 'package:eventx/repository/event_booking.dart';
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ChooseThemeScreen extends StatefulWidget {
@@ -34,10 +36,26 @@ class _ChooseThemeScreenState extends State<ChooseThemeScreen> {
     ],
   ];
 
+  List<dynamic> draftList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void loadGetStorage() async {
+    await GetStorage.init();
+  }
+
+  final storage = GetStorage();
   var eventBooking;
 
   @override
   Widget build(BuildContext context) {
+    if (storage.read(id!) != null) {
+      draftList = storage.read(id!);
+    }
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
     debugPrint("ChooseTheme: ${eventBooking["DRINKS"]["SOFT"]}");
     return Scaffold(
@@ -53,23 +71,10 @@ class _ChooseThemeScreenState extends State<ChooseThemeScreen> {
                       onTap: () {
                         Navigator.pop(context);
                       },
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: 50,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color.fromRGBO(97, 62, 234, 1),
-
-                            // border:
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            "Back",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                      child: const SizedBox(
+                        height: 50,
+                        width: 50,
+                        child: Icon(Icons.arrow_back_ios_new_outlined),
                       ),
                     ),
                     const SizedBox(
@@ -84,57 +89,6 @@ class _ChooseThemeScreenState extends State<ChooseThemeScreen> {
                       ),
                     )
                   ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                  controller: _eventEditingController,
-                  decoration: const InputDecoration(
-                      fillColor: Colors.white,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Color.fromARGB(156, 183, 184, 186),
-                      ),
-                      // suffixIcon: IconButton(onPressed: onpressed, icon: const Icon(Icons.remove_red_eye_outlined)),
-                      hintText: "Enter a Theme Name",
-                      hintStyle: TextStyle(
-                          color: Color.fromARGB(156, 152, 154, 156),
-                          fontWeight: FontWeight.w500),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      filled: true,
-                      contentPadding: EdgeInsets.all(8)),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "* required";
-                    }
-                    return null;
-                  },
-                  // onTap: onTap,
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: false,
                 ),
                 const SizedBox(
                   height: 20,
@@ -323,11 +277,18 @@ class _ChooseThemeScreenState extends State<ChooseThemeScreen> {
                   //     maintainState: true,
                   //   ),
                   // );
-                  eventBooking["THEME"] = theme.name!;
+                  eventBooking["THEME"] = [theme.name!, theme.id!];
+                  for (var i = 0; i < draftList.length; i++) {
+                    if (draftList[i]["DRAFT_ID"] == eventBooking["DRAFT_ID"]) {
+                      draftList[i] = eventBooking;
+                    }
+                  }
+                  debugPrint("Draft list for theme: $draftList");
+                  storage.write(id!, draftList);
                   Navigator.pushNamed(
                     context,
                     '/chooseDrinksCategory',
-                    arguments: eventBooking ,
+                    arguments: eventBooking,
                   );
                 },
                 style: ButtonStyle(

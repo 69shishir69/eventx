@@ -20,7 +20,7 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
   String searchQuery = "";
   // int? imgSelectedIndex;
   List<int> selectedCakes = [];
-  Map<int, dynamic> selectedCakesPound = {};
+  Map<String, dynamic> selectedCakesPound = {};
 
   int itemCount = 0;
 
@@ -48,10 +48,13 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
   ];
 
   File? img;
-  Future _loadImage(ImageSource imageSource) async {
+  Future _loadImage(ImageSource imageSource, StateSetter setStateSheet) async {
     try {
       final image = await ImagePicker().pickImage(source: imageSource);
       if (image != null) {
+        setStateSheet(() {
+          img = File(image.path);
+        });
         setState(() {
           img = File(image.path);
         });
@@ -70,6 +73,15 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
     // InternalLinkedHashMap<String, dynamic> invalidMap;
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
     debugPrint("Choose Cakes: $eventBooking");
+    setState(() {
+      if (eventBooking["CUSTOM_CAKE_IMAGE"] != null) {
+        setState(() {
+        img = File(eventBooking["CUSTOM_CAKE_IMAGE"]);
+          
+        });
+        _customCakePoundController.text = eventBooking["CUSTOM_CAKE_POUND"];
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -227,29 +239,85 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
                 const SizedBox(height: 15),
                 Column(
                   children: [
-                    InkWell(
-                      onTap: () => showMaterialModalBottomSheet(
-                        context: context,
-                        builder: (context) => showModalCake(),
-                      ),
-                      child: Container(
-                        height: 120,
-                        width: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            width: 1,
-                            color: const Color.fromARGB(255, 188, 188, 188),
+                    Stack(
+                      children: [
+                        InkWell(
+                          onTap: () => showMaterialModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return StatefulBuilder(builder:
+                                  (BuildContext context,
+                                      StateSetter setStateSheet) {
+                                return showModalCake(setStateSheet);
+                              });
+                            },
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.add_a_photo,
-                            size: 50,
+                          child: Container(
+                            height: 120,
+                            width: 120,
+                            decoration: img != null
+                                ? BoxDecoration(
+                                    image: DecorationImage(
+                                        image: FileImage(img!),
+                                        fit: BoxFit.cover),
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      width: 1,
+                                      color: const Color.fromARGB(
+                                          255, 188, 188, 188),
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  )
+                                : BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      width: 1,
+                                      color: const Color.fromARGB(
+                                          255, 188, 188, 188),
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                            child: Center(
+                              child: img == null
+                                  ? const Icon(
+                                      Icons.add_a_photo,
+                                      size: 50,
+                                    )
+                                  : const SizedBox(),
+                            ),
                           ),
                         ),
-                      ),
+                        img != null
+                            ? Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      width: 4,
+                                      color: Theme.of(context)
+                                          .scaffoldBackgroundColor,
+                                    ),
+                                    color: Colors.grey[200],
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        img = null;
+                                      });
+                                    },
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox()
+                      ],
                     ),
                     const Text("Custom Cake"),
                   ],
@@ -263,6 +331,10 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
                       key: const ValueKey('btnLogin'),
                       onPressed: () {
                         eventBooking["CAKES"] = selectedCakesPound;
+                        if(img!=null){
+                          eventBooking["CUSTOM_CAKE_IMAGE"] = img!.path;
+                          eventBooking["CUSTOM_CAKE_POUND"] = _customCakePoundController.text;
+                        }
                         Navigator.pushNamed(
                           context,
                           '/editDetailsScreen',
@@ -299,12 +371,14 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
     );
   }
 
-  Widget showModalCake() {
+  Widget showModalCake(StateSetter setStateSheet) {
     return SizedBox(
       height: 400,
       child: Column(
         children: [
-          const SizedBox(height: 15,),
+          const SizedBox(
+            height: 15,
+          ),
           // const Text(
           //   "Choose Image",
           //   style: TextStyle(fontSize: 20),
@@ -348,7 +422,7 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
           ),
           ElevatedButton.icon(
             onPressed: () {
-              _loadImage(ImageSource.gallery);
+              _loadImage(ImageSource.gallery, setStateSheet);
             },
             icon: const Icon(Icons.image),
             label: const Text("Choose Image"),
@@ -368,42 +442,44 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
             height: 20,
           ),
           Center(
-                  child: SizedBox(
-                    height: 50,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: ElevatedButton(
-                      key: const ValueKey('btnLogin'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                            // side: const BorderSide(color: Colors.red),
-                          ),
-                        ),
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 121, 61, 225)),
-                      ),
-                      child: const Text(
-                        "Confirm",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 22,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400),
-                      ),
+            child: SizedBox(
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: ElevatedButton(
+                key: const ValueKey('btnLogin'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      // side: const BorderSide(color: Colors.red),
                     ),
                   ),
+                  backgroundColor: MaterialStateProperty.all(
+                      const Color.fromARGB(255, 121, 61, 225)),
                 ),
+                child: const Text(
+                  "Confirm",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget cakeContainer(CakeModel event, int index) {
+    if (eventBooking["CAKES"] != null) {
+      selectedCakesPound = eventBooking["CAKES"];
+    }
     // debugPrint("data===${event[0]}");
     // debugPrint("value===${event[1]}");
     debugPrint("List===${listEvent[2]}");
@@ -469,21 +545,28 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  selectedCakesPound.containsKey(index)
+                  selectedCakesPound.containsKey(index.toString())
                       ? IconButton(
                           icon: const Icon(Icons.remove),
                           onPressed: () => setState(() {
-                            if (selectedCakesPound.containsKey(index) &&
-                                int.parse(selectedCakesPound[index][1]) > 0) {
-                              int newCakePound =
-                                  int.parse(selectedCakesPound[index][1]) - 1;
+                            if (selectedCakesPound
+                                    .containsKey(index.toString()) &&
+                                int.parse(selectedCakesPound[index.toString()]
+                                        [1]) >
+                                    0) {
+                              int newCakePound = int.parse(
+                                      selectedCakesPound[index.toString()][1]) -
+                                  1;
 
-                              selectedCakesPound[index][1] =
+                              selectedCakesPound[index.toString()][1] =
                                   newCakePound.toString();
-                              if (selectedCakesPound.containsKey(index) &&
-                                  int.parse(selectedCakesPound[index][1]) < 1) {
+                              if (selectedCakesPound
+                                      .containsKey(index.toString()) &&
+                                  int.parse(selectedCakesPound[index.toString()]
+                                          [1]) <
+                                      1) {
                                 itemCount = 0;
-                                selectedCakesPound.remove(index);
+                                selectedCakesPound.remove(index.toString());
                               }
                             }
                             debugPrint(
@@ -491,24 +574,31 @@ class _EditCakesScreenState extends State<EditCakesScreen> {
                           }),
                         )
                       : Container(),
-                  selectedCakesPound.containsKey(index)
-                      ? Text(selectedCakesPound[index][1])
+                  selectedCakesPound.containsKey(index.toString())
+                      ? Text(selectedCakesPound[index.toString()][1])
                       : const Text("0"),
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () => setState(() {
                       // itemCount++;
-                      if (selectedCakesPound.containsKey(index) &&
-                          int.parse(selectedCakesPound[index][1]) > 0) {
+                      if (selectedCakesPound.containsKey(index.toString()) &&
+                          int.parse(selectedCakesPound[index.toString()][1]) >
+                              0) {
                         int newCakePound =
-                            int.parse(selectedCakesPound[index][1]) + 1;
+                            int.parse(selectedCakesPound[index.toString()][1]) +
+                                1;
                         debugPrint("NewCake: $newCakePound");
-                        selectedCakesPound[index][1] = "$newCakePound";
+                        selectedCakesPound[index.toString()][1] =
+                            "$newCakePound";
                       } else {
                         itemCount = 1;
                         int newCakePound = 1;
-                        final cakePound = <int, dynamic>{
-                          index: [event.name, "$newCakePound", event.id]
+                        final cakePound = <String, dynamic>{
+                          index.toString(): [
+                            event.name,
+                            "$newCakePound",
+                            event.id
+                          ]
                         };
                         selectedCakesPound.addEntries(cakePound.entries);
                       }

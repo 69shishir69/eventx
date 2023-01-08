@@ -7,7 +7,8 @@ import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({Key? key}) : super(key: key);
+
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -470,7 +471,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Navigator.pushNamed(
         context,
         '/OTPVerification',
-        arguments: _emailController.text,
+        arguments: [_emailController.text,"REGISTER"],
       );
       displaySuccessMessage(context, "Register Success");
     } else {

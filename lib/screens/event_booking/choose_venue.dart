@@ -1,8 +1,10 @@
 import 'package:eventx/models/venue/filtered_venue_model.dart';
 import 'package:eventx/repository/event_booking.dart';
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class ChooseVenueScreen extends StatefulWidget {
@@ -13,9 +15,9 @@ class ChooseVenueScreen extends StatefulWidget {
 }
 
 class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
-  List<dynamic>? draftList = [];
+  List<dynamic> draftList = [];
   final _noOfPeopleEditingController = TextEditingController();
-  final _timeEditingController = TextEditingController();
+  final _dateEditingController = TextEditingController();
   final _globalKey = GlobalKey<FormState>();
   bool show = false;
 
@@ -25,16 +27,27 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
   var eventBooking;
 
   @override
-  void initState(){
-    Future.delayed(const Duration(seconds: 10),(){
-
-    });
+  void initState() {
+    loadGetStorage();
     super.initState();
   }
 
+  void loadGetStorage() async {
+    await GetStorage.init();
+  }
+
+  final storage = GetStorage();
+
   @override
   Widget build(BuildContext context) {
+    if (storage.read(id!) == null) {
+      draftList = [];
+    } else {
+      draftList = storage.read(id!);
+    }
+
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
+    // draftList.add(eventBooking);
     // debugPrint("Choose Venue Part: $newAllDrinks");
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 250, 250, 255),
@@ -52,23 +65,10 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: Container(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            width: 50,
-                            height: 25,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              color: const Color.fromRGBO(97, 62, 234, 1),
-
-                              // border:
-                            ),
-                            alignment: Alignment.center,
-                            child: const Text(
-                              "Back",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
+                        child: const SizedBox(
+                          height: 50,
+                          width: 50,
+                          child: Icon(Icons.arrow_back_ios_new_outlined),
                         ),
                       ),
                       const SizedBox(
@@ -119,28 +119,41 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
                             return null;
                           },
                         ),
-                        TextFormField(
-                          key: const ValueKey("txtdate"),
-                          controller: _timeEditingController,
-                          decoration: const InputDecoration(
-                            hintStyle: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Color.fromARGB(255, 192, 192, 192),
+                        Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                          height: 70,
+                          child: Center(
+                            child: TextField(
+                              controller: _dateEditingController,
+                              //editing controller of this TextField
+                              decoration: const InputDecoration(
+                                  icon: Icon(Icons.calendar_today),
+                                  labelText: "Choose Date"),
+                              readOnly: true,
+
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    //DateTime.now() - not to allow to choose before today.
+                                    lastDate: DateTime(2100));
+
+                                if (pickedDate != null) {
+                                  debugPrint(pickedDate.toString());
+                                  String formattedDate =
+                                      // DateFormat.yMMMMd().format(pickedDate);
+                                      // DateFormat.yMd().format(pickedDate);
+                                      pickedDate.toString().split(" ").first;
+                                  debugPrint(formattedDate);
+                                  setState(() {
+                                    _dateEditingController.text = formattedDate;
+                                  });
+                                } else {}
+                              },
                             ),
-                            labelText: "Date",
-                            labelStyle: TextStyle(
-                              fontSize: 15,
-                              color: Color.fromARGB(255, 192, 192, 192),
-                            ),
-                            border: UnderlineInputBorder(),
                           ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "Enter date";
-                            }
-                            return null;
-                          },
                         ),
                         ListTile(
                           title: const Text('Indoor'),
@@ -211,7 +224,9 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
                     FutureBuilder<List<FilteredVenueModel?>>(
                       future: EventRepository().loadFilteredVenueType(
                           int.parse(_noOfPeopleEditingController.text),
-                          _timeEditingController.text,indoor, outdoor),
+                          _dateEditingController.text,
+                          indoor,
+                          outdoor),
                       builder: (context, snapshot) {
                         // debugPrint("Data:::::${snapshot.data!.length}");
                         // debugPrint("Data:::::${snapshot.data![0]!.name}");
@@ -244,6 +259,7 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
                         }
                       },
                     ),
+                  // const SizedBox(height: 0)
                 ],
               ),
             ),
@@ -492,10 +508,18 @@ class _ChooseVenueScreenState extends State<ChooseVenueScreen> {
                 onPressed: () {
                   eventBooking["VENUE"] = {
                     "No Of People": _noOfPeopleEditingController.text,
-                    "Date": _timeEditingController.text,
+                    "Date": _dateEditingController.text,
                     "Name": venue.name!,
                     "id": venue.id,
                   };
+                  for (var i = 0; i < draftList.length; i++) {
+                    if (draftList[i]["DRAFT_ID"] == eventBooking["DRAFT_ID"]) {
+                      debugPrint("Compared true......................");
+                      draftList[i] = eventBooking;
+                      debugPrint("Draft List${draftList[i]}");
+                    }
+                  }
+                  storage.write(id!, draftList);
                   Navigator.pushNamed(
                     context,
                     '/chooseTheme',

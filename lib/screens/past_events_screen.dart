@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 class PastEventsScreen extends StatefulWidget {
-  const PastEventsScreen({super.key});
+  const PastEventsScreen({Key? key}) : super(key: key);
+
 
   @override
   State<PastEventsScreen> createState() => _PastEventsScreenState();
@@ -33,11 +34,10 @@ class _PastEventsScreenState extends State<PastEventsScreen> {
       eventList = storage.read("event");
       debugPrint("Not NULL value");
     }
-    // debugPrint("Draft Listtttttttttttttttttt${eventList[0]["EVENT"]}");
-    // debugPrint("Draft$eventList");
+    debugPrint("Draft Listtttttttttttttttttt${eventList![0]["EVENT"]}");
+    debugPrint("Draft$eventList");
 
-    return eventList != null
-        ? Scaffold(
+    return Scaffold(
             body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -97,8 +97,7 @@ class _PastEventsScreenState extends State<PastEventsScreen> {
                 ],
               ),
             ),
-          ))
-        : const Scaffold();
+          ));
   }
 
   Widget draftBox(int index) {

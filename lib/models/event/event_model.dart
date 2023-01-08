@@ -3,12 +3,11 @@ part 'event_model.g.dart';
 
 @JsonSerializable()
 class EventModel {
-  @JsonKey(name: "_id")
-  String? id;
+  String? image;
   String? name;
   String? description;
 
-  EventModel({this.id, this.name, this.description});
+  EventModel({this.image, this.name, this.description});
 
   factory EventModel.fromJson(Map<String, dynamic> json) =>
       _$EventModelFromJson(json);

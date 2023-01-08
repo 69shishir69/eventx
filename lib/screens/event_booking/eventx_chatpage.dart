@@ -2,31 +2,102 @@
 // import 'package:chatapp/Model/ChatModel.dart';
 // import 'package:chatapp/Model/MessageModel.dart';
 // import 'package:emoji_picker/emoji_picker.dart';
+import 'package:eventx/models/chat/chat_model.dart';
+import 'package:eventx/models/chat/conversation_model.dart';
+import 'package:eventx/models/chat/message_model.dart';
+import 'package:eventx/repository/chat_repository.dart';
 import 'package:eventx/screens/widgets/own_message_card.dart';
 import 'package:eventx/screens/widgets/reply_card.dart';
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
-// import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart';
 
 class EventXChatPage extends StatefulWidget {
-  const EventXChatPage({Key? key}) : super(key: key);
+  final ChatModel chatModel;
+  const EventXChatPage({Key? key, required this.chatModel}) : super(key: key);
 
   // const EventXChatPage({Key key, this.chatModel, this.sourchat}) : super(key: key);
   // final ChatModel chatModel;
   // final ChatModel sourchat;
 
   @override
-  _EventXChatPageState createState() => _EventXChatPageState();
+  State<EventXChatPage> createState() => _EventXChatPageState();
 }
 
 class _EventXChatPageState extends State<EventXChatPage> {
+  // final IO.Socket socket = IO.io("http://10.0.0.2:8000",
+  //     IO.OptionBuilder().setTransports(["websocket"]).build());
+  // Socket socket = io('http://localhost:8000', 
+  //   OptionBuilder()
+  //     .setTransports(['websocket']) // for Flutter or Dart VM
+  //     .disableAutoConnect()  // disable auto-connection
+  //     .setExtraHeaders({'foo': 'bar'}) // optional
+  //     .build()
+  // );
+  IO.Socket socket = IO.io('http://10.0.0.2:8000', <String, dynamic>{
+    'transports': ['websocket'],
+     'timeout': 5000, 
+  });
+
+  List<ConversationModel?> conversation = [];
+  void connect() {
+    // MessageModel messageModel = MessageModel(sourceId: widget.sourceChat.id.toString(),targetId: );
+    // socket = IO.io("http://10.0.0.2:8000",{
+    //   "transports": ["websocket"],
+    //   "force new connection": true,
+    // });
+    // socket.connect();
+    // socket.emit("add-user", id!);
+    
+    socket.onConnect((data) {
+      print("Connected");
+      socket.on("message", (msg) {
+        print(msg);
+        setMessage(false, msg["message"]);
+        _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      });
+    });
+    socket.onConnectError((data) => print("Error Error $data"));
+    print("Socket${socket.connected}");
+  }
+
+  @override
+  void initState() {
+    getUserDetails();
+    connect();
+
+    super.initState();
+    // connect();
+
+    // focusNode.addListener(() {
+    //   if (focusNode.hasFocus) {
+    //     setState(() {
+    //       show = false;
+    //     });
+    //   }
+    // });
+    // debugPrint("CONNNNNNN");
+  }
+
+  void getUserDetails() async {
+    List<ConversationModel?> conversation1 =
+        await ChatRepository().loadConversation("639ec388f8b66a38352399a5");
+    debugPrint("User: $conversation1");
+
+    setState(() {
+      conversation = conversation1;
+    });
+  }
+
   List<String> chats = ["Hey, can i ask you that?"];
   bool show = false;
   FocusNode focusNode = FocusNode();
   bool sendButton = false;
-  // List<MessageModel> messages = [];
+  List<MessageModel> messages = [];
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  // IO.Socket socket;
   // @override
   // void initState() {
   //   super.initState();
@@ -42,43 +113,24 @@ class _EventXChatPageState extends State<EventXChatPage> {
   //   connect();
   // }
 
-  // void connect() {
-  //   // MessageModel messageModel = MessageModel(sourceId: widget.sourceChat.id.toString(),targetId: );
-  //   socket = IO.io("http://192.168.0.106:5000", <String, dynamic>{
-  //     "transports": ["websocket"],
-  //     "autoConnect": false,
-  //   });
-  //   socket.connect();
-  //   socket.emit("signin", widget.sourchat.id);
-  //   socket.onConnect((data) {
-  //     print("Connected");
-  //     socket.on("message", (msg) {
-  //       print(msg);
-  //       setMessage("destination", msg["message"]);
-  //       _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-  //           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-  //     });
-  //   });
-  //   print(socket.connected);
-  // }
+  void sendMessage(String message, String sourceId, String targetId) async {
+    bool isSent = await ChatRepository().sendChat(targetId, message);
+    setMessage(true, message);
+    socket.emit(
+        "message", {"message": message, "from": sourceId, "to": targetId});
+  }
 
-  // void sendMessage(String message, int sourceId, int targetId) {
-  //   setMessage("source", message);
-  //   socket.emit("message",
-  //       {"message": message, "sourceId": sourceId, "targetId": targetId});
-  // }
+  void setMessage(bool senderSelf, String message) {
+    ConversationModel conversationModel = ConversationModel(
+        senderSelf: senderSelf,
+        message: message,
+        createdAt: DateTime.now().toString().substring(10, 16));
+    print(messages);
 
-  // void setMessage(String type, String message) {
-  //   MessageModel messageModel = MessageModel(
-  //       type: type,
-  //       message: message,
-  //       time: DateTime.now().toString().substring(10, 16));
-  //   print(messages);
-
-  //   setState(() {
-  //     messages.add(messageModel);
-  //   });
-  // }
+    setState(() {
+      conversation.add(conversationModel);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,21 +149,21 @@ class _EventXChatPageState extends State<EventXChatPage> {
             child: AppBar(
               leadingWidth: 70,
               titleSpacing: 0,
-              
               leading: InkWell(
                 onTap: () {
                   Navigator.pop(context);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(
+                  children: [
+                    const Icon(
                       Icons.arrow_back,
                       size: 24,
                     ),
                     CircleAvatar(
                       radius: 20,
-                      backgroundImage: NetworkImage("https://manofmany.com/wp-content/uploads/2021/03/How-to-Look-Good-in-Photos-1200x900.jpeg"),
+                      backgroundImage: NetworkImage(
+                          widget.chatModel.image!),
                       // child: Image.network(
                       //   // widget.chatModel.isGroup
                       //   //     ? "assets/groups.svg"
@@ -132,26 +184,25 @@ class _EventXChatPageState extends State<EventXChatPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         // widget.chatModel.name,
-                        "Shishir Kandel",
-                        style: TextStyle(
+                        widget.chatModel.name!,
+                        style: const TextStyle(
                           fontSize: 18.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        "last seen today at 12:05",
-                        style: TextStyle(
-                          fontSize: 13,
-                        ),
-                      )
+                      // const Text(
+                      //   "last seen today at 12:05",
+                      //   style: TextStyle(
+                      //     fontSize: 13,
+                      //   ),
+                      // )
                     ],
                   ),
                 ),
               ),
-              
             ),
           ),
           body: SizedBox(
@@ -160,13 +211,58 @@ class _EventXChatPageState extends State<EventXChatPage> {
             child: WillPopScope(
               child: Column(
                 children: [
+                  // FutureBuilder<List<ConversationModel?>>(
+                  //   future:
+                  //       ChatAPI().loadConversation("639ec388f8b66a38352399a5"),
+                  //   builder: (context, snapshot) {
+                  //     // debugPrint("Data:::::${snapshot.data!.length}");
+                  //     // debugPrint("Data:::::${snapshot.data![0]!.name}");
+
+                  //     if (snapshot.hasData) {
+                  //       return Expanded(
+                  //         // height: MediaQuery.of(context).size.height * 0.7,
+                  //         child: ListView.builder(
+                  //           shrinkWrap: true,
+                  //           controller: _scrollController,
+                  //           // itemCount: messages.length + 1,
+                  //           itemCount: snapshot.data!.length,
+                  //           itemBuilder: (context, index) {
+                  //             if (index == snapshot.data!.length-1) {
+                  //               return Container(
+                  //                 height: 70,
+                  //               );
+                  //             }
+                  //             // if ("messages[index].type" == "source") {
+                  //             if (snapshot.data![index]!.senderSelf!) {
+                  //               return OwnMessageCard(
+                  //                 // message: "messages[index].message",
+                  //                 // time: "messages[index].time",
+                  //                 message: snapshot.data![index]!.message!,
+                  //                 time: "68:68",
+                  //               );
+                  //             } else {
+                  //               return ReplyCard(
+                  //                 message: snapshot.data![index]!.message!,
+                  //                 time: "09:26",
+                  //               );
+                  //             }
+                  //           },
+                  //         ),
+                  //       );
+                  //     } else if (snapshot.hasError) {
+                  //       return const Text("Error");
+                  //     } else {
+                  //       return const Center(child: CircularProgressIndicator());
+                  //     }
+                  //   },
+                  // ),
                   Expanded(
                     // height: MediaQuery.of(context).size.height - 150,
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: _scrollController,
                       // itemCount: messages.length + 1,
-                      itemCount: chats.length,
+                      itemCount: conversation.length,
                       itemBuilder: (context, index) {
                         if (index == 9) {
                           return Container(
@@ -174,16 +270,16 @@ class _EventXChatPageState extends State<EventXChatPage> {
                           );
                         }
                         // if ("messages[index].type" == "source") {
-                        if ("source" == "source") {
+                        if (conversation[index]!.senderSelf!) {
                           return OwnMessageCard(
                             // message: "messages[index].message",
                             // time: "messages[index].time",
-                            message: chats[index],
+                            message: conversation[index]!.message!,
                             time: "68:68",
                           );
                         } else {
-                          return const ReplyCard(
-                            message: "OK, we can look into that.",
+                          return ReplyCard(
+                            message: conversation[index]!.message!,
                             time: "09:26",
                           );
                         }
@@ -228,13 +324,12 @@ class _EventXChatPageState extends State<EventXChatPage> {
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
                                       hintText: "Type a message",
-                                      hintStyle: const TextStyle(color: Colors.grey),
+                                      hintStyle:
+                                          const TextStyle(color: Colors.grey),
                                       prefixIcon: const SizedBox(),
                                       suffixIcon: Row(
                                         mainAxisSize: MainAxisSize.min,
-                                        children: const [
-                                          SizedBox()
-                                        ],
+                                        children: const [SizedBox()],
                                       ),
                                       contentPadding: const EdgeInsets.all(5),
                                     ),
@@ -252,24 +347,26 @@ class _EventXChatPageState extends State<EventXChatPage> {
                                   backgroundColor: const Color(0xFF128C7E),
                                   child: IconButton(
                                     icon: const Icon(
-                                       Icons.send ,
+                                      Icons.send,
                                       color: Colors.white,
                                     ),
                                     onPressed: () {
                                       if (sendButton) {
-                                        chats.add(_controller.text);
-                                        _controller.clear();
-                                        // _scrollController.animateTo(
-                                        //     _scrollController
-                                        //         .position.maxScrollExtent,
-                                        //     duration:
-                                        //         const Duration(milliseconds: 300),
-                                        //     curve: Curves.easeOut);
-                                        // sendMessage(
-                                        //     _controller.text,
-                                        //     widget.sourchat.id,
-                                        //     widget.chatModel.id);
+                                        // chats.add(_controller.text);
                                         // _controller.clear();
+                                        _scrollController.animateTo(
+                                            _scrollController
+                                                .position.maxScrollExtent,
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            curve: Curves.easeOut);
+                                        sendMessage(
+                                          _controller.text,
+                                          id!,
+                                          // widget.chatModel.id!,
+                                          "639ec388f8b66a38352399a5",
+                                        );
+                                        _controller.clear();
                                         setState(() {
                                           sendButton = false;
                                         });

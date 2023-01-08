@@ -1,6 +1,6 @@
-import 'package:eventx/screens/event_booking/choose_create_event.dart';
+import 'package:eventx/screens/event_booking/choose_event.dart';
 import 'package:eventx/screens/home_page.dart';
-import 'package:eventx/screens/profile_page.dart';
+import 'package:eventx/screens/profile_screen.dart';
 import 'package:eventx/screens/staff_chat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -20,9 +20,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static const List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
-    ChooseCreateEventScreen(),
+    ChooseEventScreen(),
+    // ChooseCreateEventScreen(),
     StaffChatPage(),
-    ProfilePageScreen(),
+    // ProfilePageScreen(),
+    ProfileScreen()
     // PastEventsScreen(),
     // Center(
     //   child: Text(

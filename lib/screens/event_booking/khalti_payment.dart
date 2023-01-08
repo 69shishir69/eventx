@@ -5,6 +5,7 @@ import 'package:eventx/models/payment/transaction_details.dart';
 import 'package:eventx/repository/payment_repository.dart';
 import 'package:eventx/screens/bottom_nav_bar.dart';
 import 'package:eventx/utils/display_message.dart';
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
@@ -45,177 +46,280 @@ class _KhaltiPaymentScreenState extends State<KhaltiPaymentScreen> {
   var eventBooking;
   @override
   Widget build(BuildContext context) {
+    if (storage.read(id!) != null) {
+      draftList = storage.read(id!);
+    }
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          child: ListView(
-            children: [
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: 50,
-                        height: 25,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: const Color.fromRGBO(97, 62, 234, 1),
-
-                          // border:
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          "Back",
-                          style: TextStyle(color: Colors.white),
-                        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  // color: Colors.white,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                const Text(
+                  "Payment",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(),
+                const SizedBox(),
+              ],
+            ),
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Center(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 15,
+                        offset: Offset(2, 6),
+                        spreadRadius: -18,
                       ),
+                    ],
+                    color: Colors.white,
+                  ),
+                  height: 218,
+                  width: 320,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Payment Method",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 19),
+                        ),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () {
+                            // debugPrint()eventBooking["CUSTOM_CAKE_IMAGE"]
+                            debugPrint(
+                                "AFTER SUCCESS: ${eventBooking["CUSTOM_CAKE_IMAGE"]}");
+                            if (drink.isEmpty) {
+                              if (eventBooking["DRINKS"].isNotEmpty) {
+                                eventBooking["DRINKS"].forEach((key, value) {
+                                  if (!value.isEmpty) {
+                                    debugPrint("Key $key and Value $value");
+
+                                    value.forEach((key, value) {
+                                      drink.add(Items(
+                                          id: value[2],
+                                          quantity: int.parse(value[1])));
+                                    });
+                                  }
+                                });
+                              }
+                            }
+                            if (cake.isEmpty) {
+                              if (eventBooking["CAKES"].isNotEmpty) {
+                                eventBooking["CAKES"].forEach((key, value) {
+                                  if (!value.isEmpty) {
+                                    cake.add(Cakes(
+                                        id: value[2],
+                                        pound: int.parse(value[1])));
+                                  }
+                                });
+                              }
+                            }
+
+                            if(decoration.isEmpty){
+                              if(eventBooking["DECORATIONS"].isNotEmpty){
+                                eventBooking["DECORATIONS"].forEach((key, value){
+                                  if (!value.isEmpty) {
+                                    decoration.add(value[1]);
+                                  }
+                                });
+                              }
+                            }
+
+                            debugPrint("Drink List ${decoration.toString()}");
+                            KhaltiScope.of(context).pay(
+                              config: PaymentConfig(
+                                amount: getAmt(),
+                                productIdentity: 'dells-sssssg5-g5510-2021',
+                                productName: 'eventX',
+                              ),
+                              preferences: [
+                                PaymentPreference.khalti,
+                              ],
+                              onSuccess: (su) {
+                                // if (eventBooking["DECORATIONS"].isNotEmpty) {
+                                // decoration.add(eventBooking["DECORATIONS"]);
+                                // }
+
+                                // debugPrint(drink.toString() + drink.length.toString());
+                                debugPrint(
+                                    "Success Payssssssssssssssssssssss: ");
+                                TransactionDetails transactionDetails =
+                                    TransactionDetails(
+                                  idx: su.idx,
+                                  token: su.token,
+                                );
+                                PaymentDetails paymentDetails = eventBooking[
+                                            "CUSTOM_CAKE_IMAGE"] ==
+                                        null
+                                    ? PaymentDetails(
+                                        eventType: eventBooking["EVENT"],
+                                        venue: eventBooking["VENUE"]["id"],
+                                        theme: eventBooking["THEME"][1],
+                                        date: eventBooking["VENUE"]["Date"],
+                                        numberOfPeople: int.parse(
+                                            eventBooking["VENUE"]
+                                                ["No Of People"]),
+                                        drinks: drink,
+                                        cakes: cake,
+                                        decorations: decoration,
+                                        payment: transactionDetails,
+                                      )
+                                    : PaymentDetails(
+                                        eventType: eventBooking["EVENT"],
+                                        venue: eventBooking["VENUE"]["id"],
+                                        theme: eventBooking["THEME"][1],
+                                        date: eventBooking["VENUE"]["Date"],
+                                        numberOfPeople: int.parse(
+                                            eventBooking["VENUE"]
+                                                ["No Of People"]),
+                                        drinks: drink,
+                                        cakes: cake,
+                                        decorations: decoration,
+                                        payment: transactionDetails,
+                                        customCakeImage:
+                                            eventBooking["CUSTOM_CAKE_IMAGE"],
+                                        customCakePound: int.parse(
+                                            eventBooking["CUSTOM_CAKE_POUND"]),
+                                      );
+                                _postTransaction(paymentDetails);
+
+                                // draftList.add(eventBooking);
+                                // storage.write("event", draftList);
+
+                                print(
+                                    "OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+                                // displaySuccessMessage(context, "    Payment Success    ");
+                                // var successsnackBar = const SnackBar(
+                                //   content: Text(
+                                //       'Payment Successful'),
+                                //   duration: Duration(seconds: 15),
+                                // );
+                                // ScaffoldMessenger.of(context)
+                                //     .showSnackBar(successsnackBar);
+                                // // Navigator.pushNamed(context, "/chooseEvent");
+                                // Navigator.of(context).push(
+                                //   MaterialPageRoute(
+                                //     builder: (context) => const BottomNavBar(index: 3),
+                                //   ),
+                                // );
+                              },
+                              onFailure: (fa) {
+                                // const failedsnackBar = SnackBar(
+                                //   content: Text('Payment Failed'),
+                                // );
+                                // ScaffoldMessenger.of(context)
+                                //     .showSnackBar(failedsnackBar);
+                                displayErrorMessage(context, "Payment Failed");
+
+                                // Navigator.pushNamed(context, "/");
+                              },
+                              onCancel: () {
+                                const cancelsnackBar = SnackBar(
+                                  content: Text('Payment Cancelled'),
+                                );
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(cancelsnackBar);
+                              },
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {}, // Image tapped
+                                splashColor:
+                                    Colors.white10, // Splash color over image
+                                child: Image.network(
+                                  "https://blog.khalti.com/wp-content/uploads/2021/02/Naya_Khalti_Logo_icon_2018.jpg",
+                                  fit: BoxFit.contain, // Fixes border issues
+                                  width: 70,
+                                  height: 70,
+                                ),
+                              ),
+                              const Text(
+                                "Khalti",
+                                style: TextStyle(
+                                    fontSize: 17, fontWeight: FontWeight.w400),
+                              )
+                            ],
+                          ),
+                        ),
+                        const Divider(
+                          thickness: 1,
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {}, // Image tapped
+                                splashColor:
+                                    Colors.white10, // Splash color over image
+                                child: Image.network(
+                                  "https://us.123rf.com/450wm/lkeskinen/lkeskinen1611/lkeskinen161106352/66881121-projet-de-tampon-en-caoutchouc-conception-grunge-avec-des-rayures-de-poussi%C3%A8re-les-effets-peuvent-%C3%AAt.jpg",
+                                  fit: BoxFit.contain, // Fixes border issues
+                                  width: 63,
+                                  height: 70,
+                                ),
+                              ),
+                              const SizedBox(width: 7),
+                              const Text(
+                                "Pay Later",
+                                style: TextStyle(
+                                    fontSize: 17, fontWeight: FontWeight.w400),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(
-                    width: 80,
-                  ),
-                  const Text(
-                    "Khalti Payment",
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 35),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    "Total amount",
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color.fromRGBO(118, 125, 152, 1),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    "15000",
+                    style: TextStyle(
+                      fontSize: 18,
                     ),
                   )
                 ],
               ),
-              const SizedBox(height: 15),
-              // For Amount
-              TextField(
-                readOnly: true,
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                    labelText: "Enter Amount to pay",
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green),
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    )),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              // For Button
-              MaterialButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: const BorderSide(
-                          color: Color.fromARGB(255, 90, 24, 104))),
-                  height: 50,
-                  color: const Color(0xFF56328c),
-                  child: const Text(
-                    'Pay With Khalti',
-                    style: TextStyle(color: Colors.white, fontSize: 22),
-                  ),
-                  onPressed: () {
-                    KhaltiScope.of(context).pay(
-                      config: PaymentConfig(
-                        amount: getAmt(),
-                        productIdentity: 'dells-sssssg5-g5510-2021',
-                        productName: 'eventX',
-                      ),
-                      preferences: [
-                        PaymentPreference.khalti,
-                      ],
-                      onSuccess: (su) {
-                        debugPrint("AFTER SUCCESS: ${eventBooking["DRINKS"]}");
-                        eventBooking["DRINKS"].forEach((key, value) {
-                          // debugPrint("Key $key and Value $value");
-                          if (!value.isEmpty) {
-                            value.forEach((key, value) {
-                              drink.add(Items(
-                                  id: value[2], quantity: int.parse(value[1])));
-                            });
-                          }
-                        });
-                        eventBooking["CAKES"].forEach((key, value) {
-                          if (!value.isEmpty) {
-                            cake.add(Cakes(
-                                id: value[2], pound: int.parse(value[1])));
-                          }
-                        });
-
-                        decoration.add(eventBooking["DECORATION"]);
-
-                        // debugPrint(drink.toString() + drink.length.toString());
-                        debugPrint("Success Payssssssssssssssssssssss: ");
-                        TransactionDetails transactionDetails =
-                            TransactionDetails(
-                          idx: su.idx,
-                          token: su.token,
-                        );
-                        PaymentDetails paymentDetails = PaymentDetails(
-                          // token: su.token,
-                          // idx: su.idx,
-                          // amount: eventBooking["TOTAL"],
-                          eventType: eventBooking["EVENT"],
-                          venue: eventBooking["VENUE"]["Name"],
-                          // theme: eventBooking["THEME"],
-                          date: eventBooking["VENUE"]["Date"],
-                          numberOfPeople:
-                              int.parse(eventBooking["VENUE"]["No Of People"]),
-                          drinks: drink,
-                          cakes: cake,
-                          decorations: decoration,
-                          payment: transactionDetails,
-                        );
-                        _postTransaction(paymentDetails);
-
-                        // draftList.add(eventBooking);
-                        // storage.write("event", draftList);
-
-                        print("OKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-                        // displaySuccessMessage(context, "    Payment Success    ");
-                        // var successsnackBar = const SnackBar(
-                        //   content: Text(
-                        //       'Payment Successful'),
-                        //   duration: Duration(seconds: 15),
-                        // );
-                        // ScaffoldMessenger.of(context)
-                        //     .showSnackBar(successsnackBar);
-                        // // Navigator.pushNamed(context, "/chooseEvent");
-                        // Navigator.of(context).push(
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const BottomNavBar(index: 3),
-                        //   ),
-                        // );
-                      },
-                      onFailure: (fa) {
-                        // const failedsnackBar = SnackBar(
-                        //   content: Text('Payment Failed'),
-                        // );
-                        // ScaffoldMessenger.of(context)
-                        //     .showSnackBar(failedsnackBar);
-                        displayErrorMessage(context, "Payment Failed");
-
-                        // Navigator.pushNamed(context, "/");
-                      },
-                      onCancel: () {
-                        const cancelsnackBar = SnackBar(
-                          content: Text('Payment Cancelled'),
-                        );
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(cancelsnackBar);
-                      },
-                    );
-                  }),
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );
@@ -223,6 +327,11 @@ class _KhaltiPaymentScreenState extends State<KhaltiPaymentScreen> {
 
   _displayMessage(bool isSuccess) {
     if (isSuccess) {
+      for (var i = 0; i < draftList.length; i++) {
+        if (draftList[i]["DRAFT_ID"] == eventBooking["DRAFT_ID"]) {
+          draftList.removeAt(i);
+        }
+      }
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const BottomNavBar(index: 3),

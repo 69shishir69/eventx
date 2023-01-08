@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 class TrackEvent extends StatefulWidget {
-  const TrackEvent({super.key});
+  const TrackEvent({Key? key}) : super(key: key);
+
 
   @override
   State<TrackEvent> createState() => _TrackEventState();

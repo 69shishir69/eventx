@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 class DetailsScreen extends StatefulWidget {
-  const DetailsScreen({super.key});
+  const DetailsScreen({Key? key}) : super(key: key);
+
 
   @override
   State<DetailsScreen> createState() => _DetailsScreenState();
@@ -25,7 +26,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   var eventBooking;
   final storage = GetStorage();
 
-  @override
+  @override 
   Widget build(BuildContext context) {
     if (storage.read(id!) == null) {
       draftList = [];
@@ -193,7 +194,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           ),
                         ),
                         Text(
-                          eventBooking["THEME"],
+                          eventBooking["THEME"][0],
                           style: const TextStyle(
                             color: Color.fromRGBO(67, 67, 77, 0.9),
                             fontWeight: FontWeight.w600,
@@ -337,10 +338,16 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             ),
                           ),
                           onPressed: () async {
-                            //  final SharedPreferences prefs = await SharedPreferences.getInstance();
-                            //  final String encodedData = json.encode(eventBooking);
-                            draftList.add(eventBooking);
-                            storage.write(id!, draftList);
+                            for(var i =0; i<draftList.length; i++){
+                              if(draftList[i]["DRAFT_ID"] == eventBooking["DRAFT_ID"]){
+                                draftList[i] = eventBooking;
+                              }
+                            }
+
+
+                            // draftList.add(eventBooking);
+                                storage.write(id!, draftList);
+
                             // var newFile = storage.read("sss");
                             // debugPrint("New File: $newFile");
                             debugPrint(storage.read(id!).toString());

@@ -302,28 +302,28 @@ class _EditDrinksScreenState extends State<EditDrinksScreen> {
               ),
             ),
             TextFormField(
-              initialValue: allDrinks["DRINKS"][drinkCategory[0]].containsKey(index)? allDrinks["DRINKS"][drinkCategory[0]][index][1]: "0",
+              initialValue: allDrinks["DRINKS"][drinkCategory[0]].containsKey(index.toString())? allDrinks["DRINKS"][drinkCategory[0]][index.toString()][1]: "0",
               // initialValue: "0",
               // controller: _drinksController,
               onChanged: (value) {
-                if (allDrinks["DRINKS"][drinkCategory[0]].containsKey(index) &&
-                    int.parse(allDrinks["DRINKS"][drinkCategory[0]][index][1]) > 0) {
+                if (allDrinks["DRINKS"][drinkCategory[0]].containsKey(index.toString()) &&
+                    int.parse(allDrinks["DRINKS"][drinkCategory[0]][index.toString()][1]) > 0) {
                   debugPrint("No. 1");
                   setState(() {
-                    allDrinks["DRINKS"][drinkCategory[0]][index] = [drinks.name!, value, drinks.id];
+                    allDrinks["DRINKS"][drinkCategory[0]][index.toString()] = [drinks.name!, value, drinks.id];
                     if (value.isEmpty || int.parse(value) == 0) {
-                      allDrinks["DRINKS"][drinkCategory[0]].remove(index);
+                      allDrinks["DRINKS"][drinkCategory[0]].remove(index.toString());
                     }
                   });
                 } else if (value.isEmpty || int.parse(value) == 0) {
                   debugPrint("No. 2");
 
-                  allDrinks["DRINKS"][drinkCategory[0]].remove(index);
+                  allDrinks["DRINKS"][drinkCategory[0]].remove(index.toString());
                 } else {
                   debugPrint("No. 3");
 
-                  final whiskey = <int, dynamic>{
-                    index: [drinks.name!, value, drinks.id]
+                  final whiskey = <String, dynamic>{
+                    index.toString(): [drinks.name!, value, drinks.id]
                   };
                   allDrinks["DRINKS"][drinkCategory[0]].addEntries(whiskey.entries);
                 }

@@ -8,12 +8,12 @@ part of 'cake_details.dart';
 
 Cakes _$CakesFromJson(Map<String, dynamic> json) {
   return Cakes(
-    id: json['id'] as String?,
+    id: json['_id'] as String?,
     pound: json['pound'] as int?,
   );
 }
 
 Map<String, dynamic> _$CakesToJson(Cakes instance) => <String, dynamic>{
-      'id': instance.id,
+      '_id': instance.id,
       'pound': instance.pound,
     };

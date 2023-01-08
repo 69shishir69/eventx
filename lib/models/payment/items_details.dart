@@ -3,6 +3,7 @@ part 'items_details.g.dart';
 
 @JsonSerializable()
 class Items {
+  @JsonKey(name :"_id")
   String? id;
   int? quantity;
 

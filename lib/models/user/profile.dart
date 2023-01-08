@@ -1,3 +1,4 @@
+import 'package:eventx/models/user/address.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'profile.g.dart';
 
@@ -6,7 +7,7 @@ class Profile {
   String? fullName;
   String? image;
   String? phone;
-  String? address;
+  Address? address;
 
   Profile({this.fullName, this.image, this.phone, this.address});
 

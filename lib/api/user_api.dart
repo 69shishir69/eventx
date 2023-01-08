@@ -8,12 +8,17 @@ import 'package:eventx/models/user/user_account.dart';
 import 'package:eventx/response/user/login_response.dart';
 import 'package:eventx/response/user/profile_response.dart';
 import 'package:eventx/utils/url.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 
 class UserAPI {
   //Register API
   Future<bool> registerUser(User user) async {
-    // debugPrint(user.profile!.fullName);
+    debugPrint(user.profile!.fullName);
+    debugPrint(user.email!);
+    debugPrint(user.password!);
+    debugPrint(user.category!);
+
     bool isSignup = false;
     Response response;
     var url = baseUrl + registerUrl;
@@ -22,13 +27,18 @@ class UserAPI {
     try {
       response = await dio.post(
         url,
-        data: user.toJson(),
+        data: {
+          "email": user.email!,
+          "password": user.password!,
+          "category": user.category!,
+          "profile": {
+            "fullName": user.profile!.fullName,
+          },
+        },
       );
       debugPrint(response.data.toString());
       if (response.statusCode == 201) {
         return true;
-      } else if (response.statusCode == 400) {
-        return false;
       }
     } catch (e) {
       debugPrint("Error: $e");
@@ -44,13 +54,42 @@ class UserAPI {
     var url = baseUrl + updateProfileUrl;
     var dio = HttpServices().getDioInstance();
     // debugPrint(user.toJson().toString());
+    FormData formData = profile.image != null
+        ? FormData.fromMap({
+            "fullName": profile.fullName,
+            "image": await MultipartFile.fromFile(
+              profile.image!,
+              filename: profile.image!.split("/").last,
+              contentType: MediaType(
+                "image",
+                "jpeg",
+              ),
+            ),
+            "phone": profile.phone,
+            // "address": {
+            //   "province": profile.address!.province,
+            //   "city": profile.address!.city,
+            //   "ward": profile.address!.ward,
+            //   "tole": profile.address!.tole,
+            // }
+          })
+        : FormData.fromMap({
+            "fullName": profile.fullName,
+            "phone": profile.phone,
+            // "address": {
+            //   "province": profile.address!.province,
+            //   "city": profile.address!.city,
+            //   "ward": profile.address!.ward,
+            //   "tole": profile.address!.tole,
+            // }
+          });
     try {
       response = await dio.put(
         url,
         options: Options(
           headers: {HttpHeaders.authorizationHeader: "$token"},
         ),
-        data: profile.toJson(),
+        data: formData,
       );
       debugPrint(response.data.toString());
       if (response.statusCode == 202) {
@@ -114,7 +153,8 @@ class UserAPI {
       debugPrint("lllll${response.data}");
       if (response.statusCode == 200) {
         debugPrint("RRRRRRRRRRRRRRRRRRRRRRRRRRRR");
-        ProfileResponse profileResponse = ProfileResponse.fromJson(response.data);
+        ProfileResponse profileResponse =
+            ProfileResponse.fromJson(response.data);
         userAccount = UserAccount(
           id: profileResponse.data!.id,
           profile: profileResponse.data!.profile,
@@ -122,6 +162,7 @@ class UserAPI {
           category: profileResponse.data!.category,
           email: profileResponse.data!.email,
           isVerified: profileResponse.data!.isVerified,
+          image: profileResponse.data!.image,
         );
       }
     } catch (e) {
@@ -177,6 +218,88 @@ class UserAPI {
       }
     } catch (e) {
       debugPrint(e.toString());
+    }
+    return isverified;
+  }
+
+  Future<List<dynamic>> forgotPassword(String email) async {
+    bool isverified = false;
+    String msg = "Failed";
+    try {
+      var url = baseUrl + forgotPasswordUrl;
+      var dio = HttpServices().getDioInstance();
+      Response response = await dio.post(
+        url,
+        data: {
+          "email": email,
+        },
+      );
+      // print("ygasjhgdjhgaskhdgkjsahdjsahjhdhkjasdkj");
+      // debugPrint("lllll${response.data}");
+      if (response.statusCode == 200) {
+        return [true, "OTP has been sent to your email"];
+      } else if (response.statusCode == 404) {
+        return [false, "User not found"];
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return [isverified, msg];
+  }
+
+  Future<List<dynamic>> resetPassword(String email, String password) async {
+    bool isverified = false;
+    String msg = "Password Failed";
+    debugPrint("Email: $password");
+    try {
+      var url = baseUrl + resetPasswordUrl;
+      var dio = HttpServices().getDioInstance();
+      Response response = await dio.post(
+        url,
+        data: {
+          "email": email,
+          "password": password,
+        },
+      );
+      print("ygasjhgdjhgaskhdgkjsahdjsahjhdhkjasdkj");
+      // debugPrint("lllll${response.data}");
+      if (response.statusCode == 200) {
+        return [true, "You have successfully set a new password"];
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return [isverified, msg];
+  }
+
+  Future<bool> changePassword(String oldPassword, String newPassword) async {
+    bool isverified = false;
+    // debugPrint("Email: $password");
+    try {
+      var url = baseUrl + changePasswordUrl;
+      var dio = HttpServices().getDioInstance();
+      Response response = await dio.put(
+        url,
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: "$token"},
+        ),
+        data: {
+          "prevPassword": oldPassword,
+          "newPassword": newPassword,
+        },
+      );
+      // response.data
+      print("ygasjhgdjhgaskhdgkjsahdjsahjhdhkjasdkj");
+      debugPrint("lllll${response.data}");
+      if (response.statusCode == 202) {
+        return true;
+      } else if (response.statusCode == 401) {
+        debugPrint(
+            "Error OLD PASSWORDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+      }
+    } catch (e) {
+      debugPrint("Error: Change: $e");
+      return isverified;
     }
     return isverified;
   }

@@ -11,7 +11,9 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) {
     fullName: json['fullName'] as String?,
     image: json['image'] as String?,
     phone: json['phone'] as String?,
-    address: json['address'] as String?,
+    address: json['address'] == null
+        ? null
+        : Address.fromJson(json['address'] as Map<String, dynamic>),
   );
 }
 

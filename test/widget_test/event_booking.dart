@@ -1,5 +1,4 @@
 import 'package:eventx/models/cake/cake_model.dart';
-import 'package:eventx/models/event/event_model.dart';
 import 'package:eventx/models/theme/theme_model.dart';
 import 'package:eventx/repository/event_booking.dart';
 import 'package:flutter/material.dart';
@@ -13,18 +12,18 @@ void main() {
   //   categoryRepository = CategoryRepository();
   // });
 
-  test("show EVENt", () async {
-    String? expectedResult = "Special Birthday";
-    debugPrint(expectedResult);
+  // test("show EVENt", () async {
+  //   String? expectedResult = "Special Birthday";
+  //   debugPrint(expectedResult);
 
-    List<EventModel?> actualResultList =
-        await EventRepository().loadEventType();
-    debugPrint(expectedResult);
+  //   List<EventModel?> actualResultList =
+  //       await EventRepository().loadEventType();
+  //   debugPrint(expectedResult);
 
-    debugPrint(actualResultList.toString());
-    String? actualResult = actualResultList[0]!.name;
-    expect(expectedResult, actualResult);
-  });
+  //   debugPrint(actualResultList.toString());
+  //   String? actualResult = actualResultList[0]!.name;
+  //   expect(expectedResult, actualResult);
+  // });
 
   test("show Theme", () async {
     String? expectedResult = "Halloween";

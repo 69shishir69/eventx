@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class OTPVerification extends StatefulWidget {
-  const OTPVerification({super.key});
+  const OTPVerification({Key? key}) : super(key: key);
+
 
   @override
   State<OTPVerification> createState() => _OTPVerificationState();
@@ -21,11 +22,11 @@ class _OTPVerificationState extends State<OTPVerification> {
   final _sixthController = TextEditingController();
 
   bool validation = false;
-  String email = "";
+  List<dynamic> sendOTPList = [];
 
   @override
   Widget build(BuildContext context) {
-    email = ModalRoute.of(context)!.settings.arguments as String;
+    sendOTPList = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -337,13 +338,25 @@ class _OTPVerificationState extends State<OTPVerification> {
                             _fifthController.text +
                             _sixthController.text;
                         if (_globalkey.currentState!.validate()) {
-                          bool verifyOTP = await UserRepository()
-                              .verifyOTP(otpCode, "REGISTER", email);
+                          bool verifyOTP = await UserRepository().verifyOTP(
+                              otpCode, sendOTPList[1], sendOTPList[0]);
+
                           if (verifyOTP) {
-                            Navigator.pushNamed(context, '/login');
-                            displaySuccessMessage(
-                                context, "Verification Success");
+                            if (sendOTPList[1] == "REGISTER") {
+                              // ignore: use_build_context_synchronously
+                              Navigator.pushNamed(context, '/login');
+                              // ignore: use_build_context_synchronously
+                              displaySuccessMessage(
+                                  context, "Verification Success");
+                            } else {
+                              // ignore: use_build_context_synchronously
+                              Navigator.pushNamed(context, '/resetPassword', arguments: sendOTPList[0]);
+                              // ignore: use_build_context_synchronously
+                              displaySuccessMessage(
+                                  context, "Verification Success");
+                            }
                           } else {
+                            // ignore: use_build_context_synchronously
                             displayErrorMessage(context, "Verification Failed");
                           }
                         }

@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:motion_toast/motion_toast.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
+
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -220,10 +221,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 50),
                   const Center(
                     child: CircleAvatar(
-                      radius: 59,
-                      backgroundImage: NetworkImage(
-                        "https://cdn.vectorstock.com/i/1000x1000/98/01/windmill-event-management-logo-vector-29969801.webp",
-                      ),
+                      radius: 70,
+                      backgroundImage: AssetImage("assets/logo2.png"),
+                      backgroundColor: Color.fromARGB(255, 249, 249, 249),
                     ),
                   ),
                   const SizedBox(height: 70),

@@ -27,4 +27,16 @@ class UserRepository {
   Future<bool> updateProfile(Profile profile) {
     return UserAPI().updateProfile(profile);
   }
+
+  Future<List<dynamic>> forgotPassword(String email) {
+    return UserAPI().forgotPassword(email);
+  }
+
+  Future<List<dynamic>> resetPassword(String email, String password) {
+    return UserAPI().resetPassword(email, password);
+  }
+
+  Future<bool> changePassword(String oldPassword, String newPassword) {
+    return UserAPI().changePassword(oldPassword, newPassword);
+  }
 }

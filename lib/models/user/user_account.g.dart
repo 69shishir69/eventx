@@ -16,6 +16,9 @@ UserAccount _$UserAccountFromJson(Map<String, dynamic> json) {
     category: json['category'] as String?,
     email: json['email'] as String?,
     isVerified: json['isVerified'] as bool?,
+    image: json['image'] == null
+        ? null
+        : VenueImage.fromJson(json['image'] as Map<String, dynamic>),
   );
 }
 
@@ -27,4 +30,5 @@ Map<String, dynamic> _$UserAccountToJson(UserAccount instance) =>
       'category': instance.category,
       'email': instance.email,
       'isVerified': instance.isVerified,
+      'image': instance.image,
     };

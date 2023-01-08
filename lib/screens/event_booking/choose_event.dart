@@ -1,6 +1,7 @@
 import 'package:eventx/models/event/event_model.dart';
-import 'package:eventx/repository/event_booking.dart';
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
 class ChooseEventScreen extends StatefulWidget {
   const ChooseEventScreen({Key? key}) : super(key: key);
@@ -13,27 +14,42 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
   final _eventEditingController = TextEditingController();
 
   String searchQuery = "";
-
-  List<List<String>> listEvent = [
-    [
-      "https://assets.cntraveller.in/photos/60ba1d2ea1a415b43b10be74/4:3/w_1420,h_1065,c_limit/coronavirus-lockdown-birthday-party-ideas.jpg",
-      "Birthday"
-    ],
-    [
-      "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8d2VkZGluZ3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60",
-      "Wedding"
-    ],
-    [
-      "https://www.mynameart.com/pics/simple-anniversary-photo-frame.jpg",
-      "Anniversary"
-    ],
-    [
-      "https://www.hindustantimes.com/web-stories/alia-bhatt-shares-baby-shower-pics-_NDh1UIrh45ks4JvPIZJ/assets/1.jpeg",
-      "Baby Shower"
-    ],
+  List<EventModel> listEventNew = [];
+  List<EventModel> listEvent = [
+    EventModel(
+      name: "Birthday",
+      description: "Birthday is good",
+      image:
+          "https://assets.cntraveller.in/photos/60ba1d2ea1a415b43b10be74/4:3/w_1420,h_1065,c_limit/coronavirus-lockdown-birthday-party-ideas.jpg",
+    ),
+    EventModel(
+      name: "Wedding",
+      description: "Birthday is good",
+      image:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTmYPvgisuCMqQYS23f8wTZjq112qFLvODVSlpph9H8Q&s",
+    ),
+    EventModel(
+      name: "Anniversary",
+      description: "Birthday is good",
+      image:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT03TLvzhmxrQ7WUZh6WEs-dIYHQYVtD2b-e9xomRIOoQ&s",
+    ),
+    EventModel(
+      name: "Baby Shower",
+      description: "Birthday is good",
+      image:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvhPzjdanJEzMMDLZzDScEhXAAQo1FGssk-tiGNpO4&s",
+    ),
+    EventModel(
+      name: "Pre-Wedding",
+      description: "Birthday is good",
+      image:
+          "https://cdn0.weddingwire.in/article/7743/3_2/960/jpg/103477-pre-wedding-shoots-26.jpeg",
+    ),
   ];
 
   Map<String, dynamic> eventBooking = {
+    "DRAFT_ID": {},
     "EVENT": {},
     "VENUE": {},
     "THEME": {},
@@ -47,12 +63,34 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
       "BRANDY": {}
     },
     "CAKES": {},
+    "CUSTOM_CAKE_IMAGE": {},
+    "CUSTOM_CAKE_POUND": {},
     "DECORATIONS": {},
-    "TOTAL":{}
+    "TOTAL": {},
   };
 
   @override
+  void initState() {
+    // TODO: implement initState
+    loadGetStorage();
+    super.initState();
+  }
+
+  void loadGetStorage() async {
+    await GetStorage.init();
+  }
+
+  List<dynamic> draftList = [];
+  final storage = GetStorage();
+
+  @override
   Widget build(BuildContext context) {
+    // storage.remove(id!);
+    if (storage.read(id!) == null) {
+      draftList = [];
+    } else {
+      draftList = storage.read(id!);
+    }
     debugPrint(eventBooking.toString());
     return Scaffold(
       body: SafeArea(
@@ -62,35 +100,22 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
             child: Column(
               children: [
                 Row(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: 50,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color.fromRGBO(97, 62, 234, 1),
-
-                            // border:
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            "Back",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
+                  children: const [
+                    // InkWell(
+                    //   onTap: () {
+                    //     Navigator.pop(context);
+                    //   },
+                    //   child: const SizedBox(
+                    //     height: 50,
+                    //     width: 50,
+                    //     child: Icon(Icons.arrow_back_ios_new_outlined),
+                    //   ),
+                    // ),
+                    SizedBox(
+                      width: 120,
                     ),
-                    const SizedBox(
-                      width: 100,
-                    ),
-                    const Text(
-                      "Events",
+                    Text(
+                      "Choose Events",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -102,91 +127,83 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                TextFormField(
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                  controller: _eventEditingController,
-                  decoration: const InputDecoration(
-                      fillColor: Colors.white,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Color.fromARGB(156, 183, 184, 186),
-                      ),
-                      // suffixIcon: IconButton(onPressed: onpressed, icon: const Icon(Icons.remove_red_eye_outlined)),
-                      hintText: "Enter a Event Name",
-                      hintStyle: TextStyle(
-                          color: Color.fromARGB(156, 152, 154, 156),
-                          fontWeight: FontWeight.w500),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      filled: true,
-                      contentPadding: EdgeInsets.all(8)),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "* required";
-                    }
-                    return null;
-                  },
-                  // onTap: onTap,
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: false,
-                ),
+                // TextFormField(
+                //   onChanged: (value) {
+                //     setState(() {
+                //       searchQuery = value;
+                //     });
+                //   },
+                //   controller: _eventEditingController,
+                //   decoration: const InputDecoration(
+                //       fillColor: Colors.white,
+                //       prefixIcon: Icon(
+                //         Icons.search,
+                //         color: Color.fromARGB(156, 183, 184, 186),
+                //       ),
+                //       // suffixIcon: IconButton(onPressed: onpressed, icon: const Icon(Icons.remove_red_eye_outlined)),
+                //       hintText: "Enter a Event Name",
+                //       hintStyle: TextStyle(
+                //           color: Color.fromARGB(156, 152, 154, 156),
+                //           fontWeight: FontWeight.w500),
+                //       border: OutlineInputBorder(
+                //         borderSide: BorderSide(
+                //           color: Colors.transparent,
+                //         ),
+                //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                //       ),
+                //       focusedBorder: OutlineInputBorder(
+                //         borderSide: BorderSide(
+                //           color: Colors.transparent,
+                //         ),
+                //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                //       ),
+                //       enabledBorder: OutlineInputBorder(
+                //         borderSide: BorderSide(
+                //           color: Colors.transparent,
+                //         ),
+                //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                //       ),
+                //       filled: true,
+                //       contentPadding: EdgeInsets.all(8)),
+                //   validator: (value) {
+                //     if (value!.isEmpty) {
+                //       return "* required";
+                //     }
+                //     return null;
+                //   },
+                //   // onTap: onTap,
+                //   keyboardType: TextInputType.visiblePassword,
+                //   obscureText: false,
+                // ),
                 const SizedBox(
                   height: 20,
                 ),
-                FutureBuilder<List<EventModel?>>(
-                  future: EventRepository().loadEventType(),
-                  builder: (context, snapshot) {
-                    // debugPrint("Data:::::${snapshot.data!.length}");
-                    // debugPrint("Data:::::${snapshot.data![0]!.name}");
-
-                    if (snapshot.hasData) {
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: GridView.builder(
-                          itemCount: snapshot.data!.length,
-                          scrollDirection: Axis.vertical,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            childAspectRatio: 90 / 90,
-                            crossAxisCount: 2,
-                          ),
-                          itemBuilder: (context, index) {
-                            // debugPrint(index.toString());
-                            return snapshot.data![index]!.name!
-                                    .toLowerCase()
-                                    .contains(searchQuery.toLowerCase())
-                                ? doctorContainer(
-                                    snapshot.data![index]!.name!, index)
-                                : const SizedBox();
-                          },
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return const Text("Error");
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  },
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: GridView.builder(
+                    itemCount: listEvent.length,
+                    scrollDirection: Axis.vertical,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      childAspectRatio: 90 / 90,
+                      crossAxisCount: 2,
+                    ),
+                    itemBuilder: (context, index) {
+                      // debugPrint(index.toString());
+                      // if (listEvent[index]
+                      //     .name!
+                      //     .toLowerCase()
+                      //     .contains(searchQuery.toLowerCase())) {
+                      //       listEventNew.add(listEvent[index]);
+                      // }
+                      return listEvent[index]
+                              .name!
+                              .toLowerCase()
+                              .contains(searchQuery.toLowerCase())
+                          ? doctorContainer(listEvent[index], index)
+                          : const SizedBox();
+                    },
+                  ),
                 ),
               ],
             ),
@@ -196,7 +213,7 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
     );
   }
 
-  Widget doctorContainer(String eventName, int index) {
+  Widget doctorContainer(EventModel eventName, int index) {
     // debugPrint("data===${event[0]}");
     // debugPrint("value===${event[1]}");
     // debugPrint("List===${listEvent[2]}");
@@ -204,8 +221,11 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
     return InkWell(
       onTap: () {
         // final whiskey = <String, dynamic>{"EVENT":};
-        eventBooking["EVENT"] = eventName;
+        eventBooking["EVENT"] = eventName.name;
+        eventBooking["DRAFT_ID"] = "DRAFT_ID:${DateTime.now()}";
         debugPrint("Total EVent : $eventBooking");
+        draftList.add(eventBooking);
+        storage.write(id!, draftList);
         Navigator.pushNamed(
           context,
           '/chooseVenue',
@@ -236,12 +256,12 @@ class _ChooseEventScreenState extends State<ChooseEventScreen> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage(listEvent[2][0]),
+                backgroundImage: NetworkImage(eventName.image!),
               ),
               // SizedBox(
               //   width: 0.0468 * width,
               // ),
-              Text(eventName),
+              Text(eventName.name!),
             ],
           ),
         ),

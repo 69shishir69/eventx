@@ -3,6 +3,7 @@ part 'cake_details.g.dart';
 
 @JsonSerializable()
 class Cakes {
+  @JsonKey(name: "_id")
   String? id;
   int? pound;
 

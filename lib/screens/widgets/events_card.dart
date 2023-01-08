@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PastEventsCard extends StatefulWidget {
-  const PastEventsCard({super.key});
+  const PastEventsCard({Key? key}) : super(key: key);
+
 
   @override
   State<PastEventsCard> createState() => _PastEventsCardState();

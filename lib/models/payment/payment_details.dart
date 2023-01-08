@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eventx/models/payment/cake_details.dart';
 import 'package:eventx/models/payment/items_details.dart';
 import 'package:eventx/models/payment/transaction_details.dart';
@@ -20,6 +22,9 @@ class PaymentDetails {
   List<Cakes?>? cakes;
   List<String?>? decorations;
   
+  String? customCakeImage;
+  int? customCakePound;
+  
 
   PaymentDetails({
     this.amount,
@@ -33,9 +38,22 @@ class PaymentDetails {
     this.venue,
     this.userId,
     this.payment,
+    this.customCakeImage,
+    this.customCakePound,
   });
 
   factory PaymentDetails.fromJson(Map<String, dynamic> json) => _$PaymentDetailsFromJson(json);
 
   Map<String, dynamic> toJson() => _$PaymentDetailsToJson(this);
+}
+
+
+class FileConverter implements JsonConverter<File, String> {
+  const FileConverter();
+
+  @override
+  File fromJson(String json) => File(json);
+
+  @override
+  String toJson(File file) => file.path;
 }

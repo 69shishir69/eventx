@@ -29,6 +29,8 @@ PaymentDetails _$PaymentDetailsFromJson(Map<String, dynamic> json) {
     payment: json['payment'] == null
         ? null
         : TransactionDetails.fromJson(json['payment'] as Map<String, dynamic>),
+    customCakeImage: json['customCakeImage'] as String?,
+    customCakePound: json['customCakePound'] as int?,
   );
 }
 
@@ -45,4 +47,6 @@ Map<String, dynamic> _$PaymentDetailsToJson(PaymentDetails instance) =>
       'drinks': instance.drinks,
       'cakes': instance.cakes,
       'decorations': instance.decorations,
+      'customCakeImage': instance.customCakeImage,
+      'customCakePound': instance.customCakePound,
     };

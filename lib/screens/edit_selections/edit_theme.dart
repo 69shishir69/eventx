@@ -323,7 +323,7 @@ class _EditThemeScreenState extends State<EditThemeScreen> {
                   //     maintainState: true,
                   //   ),
                   // );
-                  eventBooking["THEME"] = theme.name!;
+                  eventBooking["THEME"] = [theme.name!,theme.id!];
                   Navigator.pushNamed(
                     context,
                     '/editDetailsScreen',

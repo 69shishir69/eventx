@@ -8,12 +8,12 @@ part of 'items_details.dart';
 
 Items _$ItemsFromJson(Map<String, dynamic> json) {
   return Items(
-    id: json['id'] as String?,
+    id: json['_id'] as String?,
     quantity: json['quantity'] as int?,
   );
 }
 
 Map<String, dynamic> _$ItemsToJson(Items instance) => <String, dynamic>{
-      'id': instance.id,
+      '_id': instance.id,
       'quantity': instance.quantity,
     };

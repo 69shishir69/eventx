@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 
 class DetailsScreenDraft extends StatefulWidget {
-  const DetailsScreenDraft({super.key});
+  const DetailsScreenDraft({Key? key}) : super(key: key);
+
 
   @override
   State<DetailsScreenDraft> createState() => _DetailsScreenDraftState();

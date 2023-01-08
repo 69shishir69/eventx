@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:eventx/models/cake/cake_model.dart';
 import 'package:eventx/repository/event_booking.dart';
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,7 +22,7 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
   String searchQuery = "";
   // int? imgSelectedIndex;
   List<int> selectedCakes = [];
-  Map<int, dynamic> selectedCakesPound = {};
+  Map<String, dynamic> selectedCakesPound = {};
 
   int itemCount = 0;
 
@@ -48,13 +50,17 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
   ];
 
   File? img;
-  Future _loadImage(ImageSource imageSource) async {
+  Future _loadImage(ImageSource imageSource, StateSetter setStateSheet) async {
     try {
       final image = await ImagePicker().pickImage(source: imageSource);
       if (image != null) {
+        setStateSheet(() {
+          img = File(image.path);
+        });
         setState(() {
           img = File(image.path);
         });
+        // debugPrint(img!.toString());
       } else {
         return;
       }
@@ -66,8 +72,24 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
   var eventBooking;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void loadGetStorage() async {
+    await GetStorage.init();
+  }
+
+  final storage = GetStorage();
+  List<dynamic> draftList = [];
+
+  @override
   Widget build(BuildContext context) {
     // InternalLinkedHashMap<String, dynamic> invalidMap;
+    if (storage.read(id!) != null) {
+      draftList = storage.read(id!);
+    }
     eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
     debugPrint("Choose Cakes: $eventBooking");
 
@@ -227,29 +249,85 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
                 const SizedBox(height: 15),
                 Column(
                   children: [
-                    InkWell(
-                      onTap: () => showMaterialModalBottomSheet(
-                        context: context,
-                        builder: (context) => showModalCake(),
-                      ),
-                      child: Container(
-                        height: 120,
-                        width: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            width: 1,
-                            color: const Color.fromARGB(255, 188, 188, 188),
+                    Stack(
+                      children: [
+                        InkWell(
+                          onTap: () => showMaterialModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return StatefulBuilder(builder:
+                                  (BuildContext context,
+                                      StateSetter setStateSheet) {
+                                return showModalCake(setStateSheet);
+                              });
+                            },
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.add_a_photo,
-                            size: 50,
+                          child: Container(
+                            height: 120,
+                            width: 120,
+                            decoration: img != null
+                                ? BoxDecoration(
+                                    image: DecorationImage(
+                                        image: FileImage(img!),
+                                        fit: BoxFit.cover),
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      width: 1,
+                                      color: const Color.fromARGB(
+                                          255, 188, 188, 188),
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  )
+                                : BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      width: 1,
+                                      color: const Color.fromARGB(
+                                          255, 188, 188, 188),
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                            child: Center(
+                              child: img == null
+                                  ? const Icon(
+                                      Icons.add_a_photo,
+                                      size: 50,
+                                    )
+                                  : const SizedBox(),
+                            ),
                           ),
                         ),
-                      ),
+                        img != null
+                            ? Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      width: 4,
+                                      color: Theme.of(context)
+                                          .scaffoldBackgroundColor,
+                                    ),
+                                    color: Colors.grey[200],
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        img = null;
+                                      });
+                                    },
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox()
+                      ],
                     ),
                     const Text("Custom Cake"),
                   ],
@@ -260,9 +338,21 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
                     height: 50,
                     width: MediaQuery.of(context).size.width * 0.8,
                     child: ElevatedButton(
-                      key: const ValueKey('btnLogin'),
                       onPressed: () {
                         eventBooking["CAKES"] = selectedCakesPound;
+                        if (img != null) {
+                          eventBooking["CUSTOM_CAKE_IMAGE"] = img!.path;
+                          eventBooking["CUSTOM_CAKE_POUND"] = _customCakePoundController.text;
+                        }
+                        for (var i = 0; i < draftList.length; i++) {
+                          if (draftList[i]["DRAFT_ID"] ==
+                              eventBooking["DRAFT_ID"]) {
+                            debugPrint("SAved cake draft");
+                            draftList[i] = eventBooking;
+                          }
+                        }
+                        debugPrint("Drtaft DATA CAKE: $draftList");
+                        storage.write(id!, draftList);
                         Navigator.pushNamed(
                           context,
                           '/chooseDecorationScreen',
@@ -299,12 +389,14 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
     );
   }
 
-  Widget showModalCake() {
+  Widget showModalCake(StateSetter setStateSheet) {
     return SizedBox(
       height: 400,
       child: Column(
         children: [
-          const SizedBox(height: 15,),
+          const SizedBox(
+            height: 15,
+          ),
           // const Text(
           //   "Choose Image",
           //   style: TextStyle(fontSize: 20),
@@ -348,7 +440,7 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
           ),
           ElevatedButton.icon(
             onPressed: () {
-              _loadImage(ImageSource.gallery);
+              _loadImage(ImageSource.gallery, setStateSheet);
             },
             icon: const Icon(Icons.image),
             label: const Text("Choose Image"),
@@ -367,43 +459,48 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
           const SizedBox(
             height: 20,
           ),
+          const Text("4000 per lbs"),
+          const SizedBox(
+            height: 20,
+          ),
           Center(
-                  child: SizedBox(
-                    height: 50,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: ElevatedButton(
-                      key: const ValueKey('btnLogin'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                            // side: const BorderSide(color: Colors.red),
-                          ),
-                        ),
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 121, 61, 225)),
-                      ),
-                      child: const Text(
-                        "Confirm",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 22,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400),
-                      ),
+            child: SizedBox(
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      // side: const BorderSide(color: Colors.red),
                     ),
                   ),
+                  backgroundColor: MaterialStateProperty.all(
+                      const Color.fromARGB(255, 121, 61, 225)),
                 ),
+                child: const Text(
+                  "Confirm",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget cakeContainer(CakeModel event, int index) {
+    if (eventBooking["CAKES"].isNotEmpty) {
+      selectedCakesPound = eventBooking["CAKES"];
+    }
     // debugPrint("data===${event[0]}");
     // debugPrint("value===${event[1]}");
     debugPrint("List===${listEvent[2]}");
@@ -469,21 +566,28 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  selectedCakesPound.containsKey(index)
+                  selectedCakesPound.containsKey(index.toString())
                       ? IconButton(
                           icon: const Icon(Icons.remove),
                           onPressed: () => setState(() {
-                            if (selectedCakesPound.containsKey(index) &&
-                                int.parse(selectedCakesPound[index][1]) > 0) {
-                              int newCakePound =
-                                  int.parse(selectedCakesPound[index][1]) - 1;
+                            if (selectedCakesPound
+                                    .containsKey(index.toString()) &&
+                                int.parse(selectedCakesPound[index.toString()]
+                                        [1]) >
+                                    0) {
+                              int newCakePound = int.parse(
+                                      selectedCakesPound[index.toString()][1]) -
+                                  1;
 
-                              selectedCakesPound[index][1] =
+                              selectedCakesPound[index.toString()][1] =
                                   newCakePound.toString();
-                              if (selectedCakesPound.containsKey(index) &&
-                                  int.parse(selectedCakesPound[index][1]) < 1) {
+                              if (selectedCakesPound
+                                      .containsKey(index.toString()) &&
+                                  int.parse(selectedCakesPound[index.toString()]
+                                          [1]) <
+                                      1) {
                                 itemCount = 0;
-                                selectedCakesPound.remove(index);
+                                selectedCakesPound.remove(index.toString());
                               }
                             }
                             debugPrint(
@@ -491,24 +595,31 @@ class _ChooseCakesScreenState extends State<ChooseCakesScreen> {
                           }),
                         )
                       : Container(),
-                  selectedCakesPound.containsKey(index)
-                      ? Text(selectedCakesPound[index][1])
+                  selectedCakesPound.containsKey(index.toString())
+                      ? Text(selectedCakesPound[index.toString()][1])
                       : const Text("0"),
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () => setState(() {
                       // itemCount++;
-                      if (selectedCakesPound.containsKey(index) &&
-                          int.parse(selectedCakesPound[index][1]) > 0) {
+                      if (selectedCakesPound.containsKey(index.toString()) &&
+                          int.parse(selectedCakesPound[index.toString()][1]) >
+                              0) {
                         int newCakePound =
-                            int.parse(selectedCakesPound[index][1]) + 1;
+                            int.parse(selectedCakesPound[index.toString()][1]) +
+                                1;
                         debugPrint("NewCake: $newCakePound");
-                        selectedCakesPound[index][1] = "$newCakePound";
+                        selectedCakesPound[index.toString()][1] =
+                            "$newCakePound";
                       } else {
                         itemCount = 1;
                         int newCakePound = 1;
-                        final cakePound = <int, dynamic>{
-                          index: [event.name, "$newCakePound", event.id]
+                        final cakePound = <String, dynamic>{
+                          index.toString(): [
+                            event.name,
+                            "$newCakePound",
+                            event.id
+                          ]
                         };
                         selectedCakesPound.addEntries(cakePound.entries);
                       }

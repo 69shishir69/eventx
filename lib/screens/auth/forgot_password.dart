@@ -1,11 +1,11 @@
-import 'package:eventx/models/user/user_account.dart';
 import 'package:eventx/repository/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:motion_toast/motion_toast.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  const ForgotPasswordScreen({Key? key}) : super(key: key);
+
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -128,8 +128,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
     );
 
-    
-
     return Scaffold(
       // backgroundColor: Colors.lightGreen,
       body: SingleChildScrollView(
@@ -141,43 +139,43 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               child: Column(
                 children: [
                   Row(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.centerLeft,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                         child: Container(
-                          width: 50,
-                          height: 25,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            color: const Color.fromRGBO(97, 62, 234, 1),
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: 50,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: const Color.fromRGBO(97, 62, 234, 1),
 
-                            // border:
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            "Back",
-                            style: TextStyle(color: Colors.white),
+                              // border:
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text(
+                              "Back",
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 80,
-                    ),
-                    const Text(
-                      "Booked Events",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color.fromRGBO(118, 125, 152, 1),
+                      const SizedBox(
+                        width: 80,
                       ),
-                    )
-                  ],
-                ),
+                      const Text(
+                        "Booked Events",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color.fromRGBO(118, 125, 152, 1),
+                        ),
+                      )
+                    ],
+                  ),
                   const SizedBox(height: 50),
                   const Center(
                     child: CircleAvatar(
@@ -202,40 +200,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   _navigateToScreen(bool isLogin) async {
     if (isLogin) {
-      // debugPrint("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-      UserAccount? userAccount = await UserRepository().viewProfile();
-      // debugPrint("USRRRRRRRRRRRRRR$userAccount");
-      if (userAccount!.isVerified == true) {
-        // ignore: use_build_context_synchronously
-        Navigator.pushReplacementNamed(context, '/bottomNavBar');
-        // ignore: use_build_context_synchronously
-        MotionToast.success(
-                description:
-                    const Text("        Login successful            ."))
-            .show(context);
-      } else {
-        bool isResent =
-            await UserRepository().resendOTP("REGISTER", _emailController.text);
-        if (isResent == true) {
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacementNamed(
-            context,
-            '/OTPVerification',
-            arguments: _emailController.text,
-          );
-          // ignore: use_build_context_synchronously
-          MotionToast.success(
-                description:
-                    const Text("        Verification OTP sent            ."))
-            .show(context);
-        } else{
-          // ignore: use_build_context_synchronously
-          MotionToast.error(
-                description:
-                    const Text("        Something went wrong            ."))
-            .show(context);
-        }
-      }
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(
+        context,
+        '/OTPVerification',
+        arguments: [_emailController.text,"FORGOT_PASSWORD"],
+      );
+      // ignore: use_build_context_synchronously
+      MotionToast.success(
+              description:
+                  const Text("        Verification OTP sent            ."))
+          .show(context);
     } else {
       MotionToast.error(description: const Text("Invalid user credentials"))
           .show(context);
@@ -245,12 +220,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   _resetPassword() async {
     try {
       UserRepository userRepository = UserRepository();
-      bool isLogin = await userRepository.loginUser(
+      List<dynamic> isLogin = await userRepository.forgotPassword(
         _emailController.text,
-        _passwordController.text,
       );
       // bool isLogin = true;
-      if (isLogin) {
+      if (isLogin[0]) {
         _navigateToScreen(true);
       } else {
         _navigateToScreen(false);

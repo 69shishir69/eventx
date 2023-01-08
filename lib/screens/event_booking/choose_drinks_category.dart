@@ -1,4 +1,6 @@
+import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
 class ChooseDrinksCategoryScreen extends StatefulWidget {
   const ChooseDrinksCategoryScreen({Key? key}) : super(key: key);
@@ -46,7 +48,23 @@ class _ChooseDrinksCategoryScreenState
   ];
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void loadGetStorage()async{
+    await GetStorage.init();
+  }
+
+  final storage = GetStorage();
+  List<dynamic> draftList = [];
+
+  @override
   Widget build(BuildContext context) {
+    if(storage.read(id!) != null){
+      draftList = storage.read(id!);
+    }
     try {
       eventBooking = ModalRoute.of(context)!.settings.arguments as Map;
       debugPrint("NewDrinks$eventBooking");
@@ -176,6 +194,13 @@ class _ChooseDrinksCategoryScreenState
                     child: ElevatedButton(
                       key: const ValueKey('btnLogin'),
                       onPressed: () {
+                        for(var i= 0; i<draftList.length; i++){
+                          if(draftList[i]["DRAFT_ID"] == eventBooking["DRAFT_ID"]){
+                            draftList[i] = eventBooking;
+                          }
+                        }
+                        storage.write(id!, draftList);
+
                         Navigator.pushNamed(
                           context,
                           '/chooseCakes',
@@ -217,6 +242,8 @@ class _ChooseDrinksCategoryScreenState
       padding: const EdgeInsets.all(12.0),
       child: GestureDetector(
         onTap: () {
+          // eventBooking["DRINKS"]["WHISKEY"] = [0,"ok"];
+          debugPrint(eventBooking["DRINKS"].toString());
           Navigator.pushNamed(context, '/chooseDrinks',
               // arguments: [listDrinksCategory[index][1]],
               arguments: {
