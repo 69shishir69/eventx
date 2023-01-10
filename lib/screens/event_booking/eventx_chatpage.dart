@@ -11,7 +11,6 @@ import 'package:eventx/screens/widgets/reply_card.dart';
 import 'package:eventx/utils/url.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:socket_io_client/socket_io_client.dart';
 
 class EventXChatPage extends StatefulWidget {
   final ChatModel chatModel;
@@ -35,40 +34,44 @@ class _EventXChatPageState extends State<EventXChatPage> {
   //     .setExtraHeaders({'foo': 'bar'}) // optional
   //     .build()
   // );
-  IO.Socket socket = IO.io('http://10.0.0.2:8000', <String, dynamic>{
-    'transports': ['websocket'],
-     'timeout': 5000, 
-  });
+  // IO.Socket socket = IO.io('http://10.0.0.2:8000', <String, dynamic>{
+  //   'transports': ['websocket'],
+  //    'timeout': 5000, 
+  // });
+
+  IO.Socket? socket;
 
   List<ConversationModel?> conversation = [];
   void connect() {
     // MessageModel messageModel = MessageModel(sourceId: widget.sourceChat.id.toString(),targetId: );
-    // socket = IO.io("http://10.0.0.2:8000",{
-    //   "transports": ["websocket"],
-    //   "force new connection": true,
-    // });
-    // socket.connect();
+    socket = IO.io("http://10.0.0.2:8000",<String, dynamic>{
+      "transports": ["websocket"],
+      "autoConnect": false,
+    });
+    socket!.connect();
     // socket.emit("add-user", id!);
     
-    socket.onConnect((data) {
+    socket!.onConnect((data) {
       print("Connected");
-      socket.on("message", (msg) {
+      socket!.on("message", (msg) {
         print(msg);
         setMessage(false, msg["message"]);
         _scrollController.animateTo(_scrollController.position.maxScrollExtent,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       });
     });
-    socket.onConnectError((data) => print("Error Error $data"));
-    print("Socket${socket.connected}");
+    socket!.onConnectTimeout((data) => print("Error timeout::: $data"));
+    socket!.onConnectError((data) => print("Error Error $data"));
+    print("Socket${socket!.connected}");
   }
 
   @override
   void initState() {
-    getUserDetails();
-    connect();
+    
 
     super.initState();
+    getUserDetails();
+    connect();
     // connect();
 
     // focusNode.addListener(() {
@@ -116,7 +119,7 @@ class _EventXChatPageState extends State<EventXChatPage> {
   void sendMessage(String message, String sourceId, String targetId) async {
     bool isSent = await ChatRepository().sendChat(targetId, message);
     setMessage(true, message);
-    socket.emit(
+    socket!.emit(
         "message", {"message": message, "from": sourceId, "to": targetId});
   }
 
