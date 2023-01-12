@@ -44,7 +44,7 @@ class _EventXChatPageState extends State<EventXChatPage> {
   List<ConversationModel?> conversation = [];
   void connect() {
     // MessageModel messageModel = MessageModel(sourceId: widget.sourceChat.id.toString(),targetId: );
-    socket = IO.io("http://192.168.101.7/:8000",<String, dynamic>{
+    socket = IO.io("http://172.20.10.9:8000",<String, dynamic>{
       "transports": ["websocket"],
       "autoConnect": false,
     });
