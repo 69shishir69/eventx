@@ -64,6 +64,7 @@ class _EventXChatPageState extends State<EventXChatPage> {
     socket!.onConnectError((data) => print("Error Error $data"));
     print("Socket${socket!.connected}");
   }
+  //ss
 
   @override
   void initState() {
