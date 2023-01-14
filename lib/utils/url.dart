@@ -1,4 +1,6 @@
-const baseUrl = "http://10.0.2.2:8000/";
+const baseUrl = "http://192.168.101.7:8000/";
+// const baseUrl = "http://localhost:8000/";
+
 
 
 const getAllEvent = "api/event-type";
